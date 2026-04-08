@@ -1,77 +1,72 @@
-/**
- * Product API Service — Axios-based, integration-ready.
- *
- * This file contains ONLY the real API call definitions.
- * Mock data routing is handled separately in the React Query hooks
- * via the USE_MOCK_DATA flag.
- *
- * Backend endpoint contract:
- *   GET  /products              →  Product[]  |  { data: Product[], meta: {...} }
- *   GET  /products/:id          →  Product    |  { data: Product }
- *   GET  /products?category=X   →  Product[]
- *   GET  /products?q=oil        →  Product[]
- *
- * If your backend wraps responses in { data, meta }, update the unwrap
- * logic in each function below.
- */
-
 import { get } from "./client";
-import type { Product } from "@/types/product";
+import type { Product, SubCategory } from "@/types/product";
 
 /* ─────────────────────────────────────────────
-   Response shape adapter
+   Backend response shape
    ─────────────────────────────────────────────
-   If your backend returns:  { data: [...], meta: { total, page } }
-   → set WRAPPED_RESPONSE = true and the functions will unwrap .data automatically.
-   If your backend returns the array/object directly → keep it false.
+   The backend returns a flat Product model that differs from
+   the frontend Product type. We normalise it here.
 */
-const WRAPPED_RESPONSE = false;
+interface BackendProduct {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image_url: string | null;
+}
 
-function unwrap<T>(payload: unknown): T {
-  if (WRAPPED_RESPONSE && typeof payload === "object" && payload !== null && "data" in payload) {
-    return (payload as { data: T }).data;
-  }
-  return payload as T;
+/** Map from backend category label to the closest frontend SubCategory */
+const CATEGORY_TO_SUB: Record<string, SubCategory> = {
+  "Glass Care": "House Hold",
+  "Floor Care": "House Hold",
+  "Bathroom Care": "House Hold",
+  "Disinfectants": "Clinical",
+  "Kitchen & Industrial": "Industrial",
+  "Laundry Care": "Laundry",
+  "Office": "Office",
+  "Restaurant": "Restaurant",
+  "Packaging": "Packaging",
+  "Mechanic Special": "Mechanic Special",
+};
+
+function mapProduct(p: BackendProduct): Product {
+  return {
+    id: String(p.id),
+    name: p.name,
+    description: p.description,
+    category: p.category,
+    subCategory: CATEGORY_TO_SUB[p.category] ?? "House Hold",
+    image: p.image_url ?? "/placeholder.png",
+    inStock: true,
+  };
 }
 
 /* ─────────────────────────────────────────────
-   API functions
+   API functions  (backend routes: /api/products)
    ───────────────────────────────────────────── */
 
-/**
- * Fetch all products from the backend.
- * Supports optional query params: category, q (search), inStock.
- */
 export async function fetchAllProducts(params?: {
   category?: string;
   subCategory?: string;
   q?: string;
   inStock?: boolean;
 }): Promise<Product[]> {
-  const response = await get<unknown>("/products", { params });
-  return unwrap<Product[]>(response);
+  const raw = await get<BackendProduct[]>("/api/products", { params });
+  return raw.map(mapProduct);
 }
 
-/**
- * Fetch a single product by its ID.
- */
 export async function fetchProductById(id: string): Promise<Product> {
-  const response = await get<unknown>(`/products/${id}`);
-  return unwrap<Product>(response);
+  const raw = await get<BackendProduct>(`/api/products/${id}`);
+  return mapProduct(raw);
 }
 
-/**
- * Search products by name, description, or category.
- */
 export async function searchProducts(query: string): Promise<Product[]> {
-  const response = await get<unknown>("/products", { params: { q: query } });
-  return unwrap<Product[]>(response);
+  const raw = await get<BackendProduct[]>("/api/products", { params: { q: query } });
+  return raw.map(mapProduct);
 }
 
-/**
- * Fetch only in-stock products.
- */
 export async function fetchInStockProducts(): Promise<Product[]> {
-  const response = await get<unknown>("/products", { params: { inStock: true } });
-  return unwrap<Product[]>(response);
+  const raw = await get<BackendProduct[]>("/api/products");
+  return raw.map(mapProduct);
 }

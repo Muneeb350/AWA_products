@@ -2,14 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 
-/**
- * Contact form with Name, Email, Subject, and Message fields.
- * Currently logs to console — replace the onSubmit handler with
- * your actual API call (e.g., email service, backend endpoint).
- */
 export default function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
@@ -20,26 +16,29 @@ export default function ContactForm() {
     e.preventDefault();
     setStatus("sending");
 
-    // ── TODO: Replace with your actual API call ──────────
-    // Example:
-    //   await fetch("/api/contact", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ name, email, subject, message }),
-    //   });
-    //
-    // Simulate network delay for now
-    await new Promise((r) => setTimeout(r, 1200));
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone: phone || undefined, subject, message }),
+      });
 
-    console.log("[Contact Form]", { name, email, subject, message });
-    setStatus("sent");
-    setName("");
-    setEmail("");
-    setSubject("");
-    setMessage("");
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
 
-    // Reset status after 4 seconds
-    setTimeout(() => setStatus("idle"), 4000);
+      setStatus("sent");
+      setName("");
+      setEmail("");
+      setPhone("");
+      setSubject("");
+      setMessage("");
+
+      setTimeout(() => setStatus("idle"), 4000);
+    } catch {
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 4000);
+    }
   }
 
   return (
@@ -76,16 +75,28 @@ export default function ContactForm() {
           </Field>
         </div>
 
-        {/* Subject */}
-        <Field label="Subject">
-          <input
-            type="text"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder="Wholesale pricing inquiry"
-            className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-text-muted focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
-          />
-        </Field>
+        {/* Phone + Subject row */}
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field label="Phone Number">
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+92 300 1234567"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-text-muted focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+            />
+          </Field>
+
+          <Field label="Subject">
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Wholesale pricing inquiry"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-text-muted focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+            />
+          </Field>
+        </div>
 
         {/* Message */}
         <Field label="Message" required>
@@ -119,6 +130,11 @@ export default function ContactForm() {
           {status === "sent" && (
             <span className="text-sm font-medium text-success">
               ✓ Message sent successfully! We&apos;ll be in touch soon.
+            </span>
+          )}
+          {status === "error" && (
+            <span className="text-sm font-medium text-danger">
+              ✗ Failed to send. Please try again or contact us directly.
             </span>
           )}
         </div>
