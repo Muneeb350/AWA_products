@@ -105,7 +105,7 @@ export const products: Product[] = [
     category: "Cleaning Supplies",
     subCategory: "Office",
     image:
-      "https://images.unsplash.com/photo-1584947235005-7e253eeb0966?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800",
     description:
       "Pre-moistened disinfecting wipes designed for office desks, keyboards, phones, and shared surfaces. Kills 99.9% of germs. Anti-static formula repels dust. Fresh citrus scent.",
     inStock: true,
@@ -129,7 +129,7 @@ export const products: Product[] = [
     category: "Heavy-Duty Cleaners",
     subCategory: "Industrial",
     image:
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d313c?w=600&h=400&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1664192424595-482dd94d9c45?w=800&auto=format&fit=crop&q=80",
     description:
       "Industrial-strength degreaser formulated for commercial ovens, stovetops, and range hoods. Dissolves baked-on grease and carbon deposits in minutes. Eco-friendly — no harsh chemical residue. Safe on stainless steel and enamel surfaces.",
     inStock: true,
@@ -249,7 +249,7 @@ export const products: Product[] = [
     category: "Disinfectants",
     subCategory: "Clinical",
     image:
-      "https://images.unsplash.com/photo-1584947235005-7e253eeb0966?w=600&h=400&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1763464629599-f892109ef50f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZGlzaW5mZWN0ZW50JTIwZm9yJTIwaG9zcGl0YWx8ZW58MHx8MHx8fDA%3D",
     description:
       "Broad-spectrum hospital-grade disinfectant that eliminates 99.99% of bacteria, viruses, and fungi on hard surfaces. No-rinse formula — spray and wipe. Fast-acting: kills germs in just 30 seconds contact time. Suitable for clinics, dental offices, and healthcare settings.",
     inStock: true,
