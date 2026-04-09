@@ -13,7 +13,7 @@ export default function Footer() {
               src="/logo.png"
               alt="AWA Products Logo"
               width={80}
-              height={0}
+              height={80}
               style={{ height: "auto" }}
               className="mb-3"
               priority
