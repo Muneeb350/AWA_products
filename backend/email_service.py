@@ -159,7 +159,7 @@ async def send_contact_notification(
         body=html,
         subtype=MessageType.html,
         reply_to=[email],
-        from_name=name,
+        from_name=f"{name} (AWA Website)",
         from_email=_MAIL_FROM,
     )
     await _fm.send_message(msg)
