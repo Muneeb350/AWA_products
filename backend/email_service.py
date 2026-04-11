@@ -1,4 +1,5 @@
 import os
+import uuid
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from dotenv import load_dotenv
 
@@ -61,12 +62,12 @@ def _build_html(name: str, email: str, subject: str, message: str, phone: str | 
             <td style="background:#1d4ed8;padding:32px 40px;">
               <p style="margin:0;font-size:13px;color:#bfdbfe;letter-spacing:0.08em;
                         text-transform:uppercase;font-weight:600;">AWA Products · New Inquiry</p>
-              <h1 style="margin:10px 0 0;font-size:26px;color:#ffffff;font-weight:700;
+              <h1 style="margin:10px 0 0;font-size:28px;color:#ffffff;font-weight:700;
                          line-height:1.3;">
-                From: {name}
+                Inquiry from: {name}
               </h1>
-              <p style="margin:6px 0 0;font-size:15px;color:#bfdbfe;">
-                Email: <a href="mailto:{email}" style="color:#ffffff;text-decoration:underline;">{email}</a>
+              <p style="margin:8px 0 0;font-size:16px;color:#ffffff;font-weight:600;">
+                <a href="mailto:{email}" style="color:#ffffff;text-decoration:underline;">{email}</a>
               </p>
             </td>
           </tr>
@@ -154,12 +155,15 @@ async def send_contact_notification(
 ) -> None:
     html = _build_html(name, email, subject, message, phone)
     msg = MessageSchema(
-        subject=f"[AWA Inquiry] From: {name} - {subject}",
+        subject="New Contact Inquiry - AWA Products",
         recipients=[ADMIN_EMAIL],
         body=html,
         subtype=MessageType.html,
         reply_to=[email],
-        from_name=f"{name} (AWA Website)",
-        from_email=_MAIL_FROM,
+        from_name=name,
+        from_email=_MAIL_USERNAME,
+        headers={
+            "X-Entity-Ref-ID": str(uuid.uuid4()),
+        },
     )
     await _fm.send_message(msg)
