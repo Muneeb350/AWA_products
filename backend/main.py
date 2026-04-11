@@ -13,6 +13,7 @@ app.add_middleware(
     allow_origins=["http://localhost:3000", "http://localhost:3001"],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 SEED_PRODUCTS = [

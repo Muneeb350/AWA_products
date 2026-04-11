@@ -25,7 +25,7 @@ export default function Header() {
         {/* Logo + Brand block */}
         <Link href="/" className="flex shrink-0 flex-col items-center gap-0.5">
           <Image
-            src="/logo.png"
+            src="/images/logo.png"
             alt="AWA Products logo"
             width={150}
             height={150}
