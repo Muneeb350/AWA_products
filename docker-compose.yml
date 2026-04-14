@@ -1,6 +1,75 @@
-services:
+# services:
 
-  # ── PostgreSQL 16 ──────────────────────────────────────────────────────────
+#   # ── PostgreSQL 16 ──────────────────────────────────────────────────────────
+#   db:
+#     image: postgres:16-alpine
+#     container_name: awa_db
+#     restart: unless-stopped
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: admin
+#       POSTGRES_DB: awaproducts_db
+#     ports:
+#       - "5433:5432"          # expose on host port 5433 to match your local setup
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+
+#   # ── FastAPI backend ────────────────────────────────────────────────────────
+#   backend:
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     container_name: awa_backend
+#     restart: unless-stopped
+#     env_file:
+#       - ./backend/.env          # all other vars (email, etc.) come from here
+#     environment:
+#       # Override DATABASE_URL so it points to the 'db' container, not localhost
+#       DATABASE_URL: postgresql://postgres:admin@db:5432/awaproducts_db
+#     ports:
+#       - "8000:8000"
+#     volumes:
+#       - ./backend:/app          # hot-reload: local changes reflect instantly
+#     depends_on:
+#       db:
+#         condition: service_healthy
+
+#   # ── Next.js website ────────────────────────────────────────────────────────
+#   frontend:
+#     build:
+#       context: ./frontend/website/awa_products
+#       dockerfile: Dockerfile
+#       target: dev             # use the hot-reload dev stage
+#       args:
+#         # Browser can never resolve 'backend' — always use localhost
+#         NEXT_PUBLIC_API_URL: http://localhost:8000
+#     container_name: awa_frontend
+#     restart: unless-stopped
+#     environment:
+#       # All API calls are client-side (browser), so must point to localhost
+#       NEXT_PUBLIC_API_URL: http://localhost:8000
+#     ports:
+#       - "3000:3000"
+#     volumes:
+#       # Hot-reload for development: mount source but keep node_modules from image
+#       - ./frontend/website/awa_products:/app
+#       - /app/node_modules
+#       - /app/.next
+#     depends_on:
+#       - backend
+
+# volumes:
+#   postgres_data:
+
+# 1. Project name lazmi dein
+name: awa_products_v1
+
+services:
   db:
     image: postgres:16-alpine
     container_name: awa_db
@@ -10,16 +79,16 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: awaproducts_db
     ports:
-      - "5433:5432"          # expose on host port 5433 to match your local setup
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # 2. Volume ka naam unique rakhein
+      - awa_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # ── FastAPI backend ────────────────────────────────────────────────────────
   backend:
     build:
       context: ./backend
@@ -27,41 +96,37 @@ services:
     container_name: awa_backend
     restart: unless-stopped
     env_file:
-      - ./backend/.env          # all other vars (email, etc.) come from here
+      - ./backend/.env
     environment:
-      # Override DATABASE_URL so it points to the 'db' container, not localhost
       DATABASE_URL: postgresql://postgres:admin@db:5432/awaproducts_db
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app          # hot-reload: local changes reflect instantly
+      - ./backend:/app
     depends_on:
       db:
         condition: service_healthy
 
-  # ── Next.js website ────────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend/website/awa_products
       dockerfile: Dockerfile
-      target: dev             # use the hot-reload dev stage
+      target: dev
       args:
-        # Browser can never resolve 'backend' — always use localhost
         NEXT_PUBLIC_API_URL: http://localhost:8000
     container_name: awa_frontend
     restart: unless-stopped
     environment:
-      # All API calls are client-side (browser), so must point to localhost
       NEXT_PUBLIC_API_URL: http://localhost:8000
     ports:
       - "3000:3000"
     volumes:
-      # Hot-reload for development: mount source but keep node_modules from image
       - ./frontend/website/awa_products:/app
       - /app/node_modules
       - /app/.next
     depends_on:
       - backend
 
+# 3. Yahan bhi volume ka naam change karein
 volumes:
-  postgres_data:
+  awa_postgres_data:

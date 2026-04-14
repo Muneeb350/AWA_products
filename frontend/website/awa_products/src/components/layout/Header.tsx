@@ -28,9 +28,9 @@ export default function Header() {
             src="/images/logo.png"
             alt="AWA Products logo"
             width={150}
-            height={150}
+            height={50}
             priority
-            style={{ height: "auto" }}
+            style={{ width: 'auto', height: 'auto' }}
             className="object-contain"
           />
           <span className="text-[14px] font-bold uppercase tracking-[0.2em] text-brand-700">

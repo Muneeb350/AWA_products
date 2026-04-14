@@ -149,7 +149,7 @@ function CompanyInfo() {
           <div>
             <dt className="font-medium text-text">Business Hours</dt>
             <dd className="mt-0.5 text-text-muted">
-              Mon – Sat: 9:00 AM – 6:00 PM (PKT)
+              Mon – Sat: 9:00 AM – 6:00 PM (CET)
               <br />
               Sunday: Closed
             </dd>
@@ -181,7 +181,7 @@ function MapEmbed() {
 
 function WhatsAppCTA() {
   // Replace with your actual WhatsApp business number
-  const WHATSAPP_NUMBER = "4697790221";
+  const WHATSAPP_NUMBER = "4697790222";
   const message = encodeURIComponent(
     "Hi AWA Products, I'd like to inquire about wholesale pricing. Can you help?"
   );

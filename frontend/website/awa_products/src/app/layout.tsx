@@ -24,11 +24,11 @@ export const metadata: Metadata = {
     "Your trusted partner for premium wholesale household and cleaning products. Surface cleaners, disinfectants, laundry care, kitchen essentials, and more — delivered in bulk.",
   icons: {
     icon: [
-      { url: "/logo.png", type: "image/png", sizes: "any" },
+      { url: "/images/logo.png", type: "image/png", sizes: "any" },
     ],
-    shortcut: { url: "/logo.png", type: "image/png", sizes: "any" },
+    shortcut: { url: "/images/logo.png", type: "image/png", sizes: "any" },
     apple: [
-      { url: "/logo.png", sizes: "180x180", type: "image/png" },
+      { url: "/images/logo.png", sizes: "180x180", type: "image/png" },
     ],
   },
 };

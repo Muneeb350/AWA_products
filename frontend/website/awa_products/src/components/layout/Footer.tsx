@@ -10,12 +10,12 @@ export default function Footer() {
           {/* Brand / Logo */}
           <div>
             <Image
-              src="/logo.png"
+              src="/images/logo.png"
               alt="AWA Products Logo"
-              width={80}
-              height={80}
-              style={{ height: "auto" }}
-              className="mb-3"
+              width={150}
+              height={50}
+              style={{ width: 'auto', height: 'auto' }}
+              className="mb-3 object-contain"
               priority
             />
             <h4 className="text-lg font-bold text-brand-700">AWA Products</h4>
