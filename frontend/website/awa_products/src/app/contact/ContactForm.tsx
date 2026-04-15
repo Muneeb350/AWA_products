@@ -42,7 +42,7 @@ export default function ContactForm() {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+    <section className="w-full rounded-xl border border-border bg-surface p-4 shadow-sm sm:p-5 md:p-6 lg:p-8">
       <h2 className="text-lg font-semibold text-text">Send Us a Message</h2>
       <p className="mt-1 text-sm text-text-muted">
         Fill out the form below and our team will get back to you within 24
@@ -51,7 +51,7 @@ export default function ContactForm() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         {/* Name + Email row */}
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Full Name" required>
             <input
               type="text"
@@ -76,7 +76,7 @@ export default function ContactForm() {
         </div>
 
         {/* Phone + Subject row */}
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Phone Number">
             <input
               type="tel"
@@ -111,11 +111,11 @@ export default function ContactForm() {
         </Field>
 
         {/* Submit */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
             type="submit"
             disabled={status === "sending"}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-text-inverse shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-text-inverse shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {status === "sending" ? (
               <>

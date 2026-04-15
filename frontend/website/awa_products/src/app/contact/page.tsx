@@ -13,42 +13,50 @@ import {
 /**
  * Contact Us page — server component.
  * Displays company info, contact form, map, and WhatsApp CTA.
+ * Mobile: Form on top, Map + Info below.
  */
 export default function ContactPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-text-muted">
-        <Link href="/" className="hover:text-brand-600">
-          Home
-        </Link>
-        <span>/</span>
-        <span className="text-text font-medium">Contact Us</span>
-      </nav>
+    <div className="w-full max-w-full overflow-x-hidden">
+      <div className="mx-auto w-full max-w-7xl px-4 md:px-8 py-10">
+        {/* Breadcrumb */}
+        <nav className="mb-6 flex items-center gap-2 text-sm text-text-muted">
+          <Link href="/" className="hover:text-brand-600">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-text font-medium">Contact Us</span>
+        </nav>
 
-      {/* Page header */}
-      <div className="mb-10 text-center sm:text-left">
-        <h1 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
-          Get in Touch
-        </h1>
-        <p className="mt-3 max-w-2xl text-base text-text-muted">
-          Whether you need bulk pricing, product samples, or a custom order —
-          our wholesale team is here to help. Reach out via the form below, or
-          connect with us directly.
-        </p>
-      </div>
-
-      <div className="grid gap-10 lg:grid-cols-5">
-        {/* Left: Company info + Map + WhatsApp */}
-        <div className="flex flex-col gap-8 lg:col-span-2">
-          <CompanyInfo />
-          <MapEmbed />
-          <WhatsAppCTA />
+        {/* Page header */}
+        <div className="mb-8 text-center sm:text-left">
+          <h1 className="text-2xl font-bold tracking-tight text-text sm:text-3xl md:text-4xl">
+            Get in Touch
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm text-text-muted sm:text-base">
+            Whether you need bulk pricing, product samples, or a custom order —
+            our wholesale team is here to help. Reach out via the form below, or
+            connect with us directly.
+          </p>
         </div>
 
-        {/* Right: Contact form */}
-        <div className="lg:col-span-3">
-          <ContactForm />
+        {/*
+          Responsive grid:
+          - Mobile (default): single column → Form on top (order-1), Map + Info below (order-2)
+          - Desktop (lg): 5-col split, form takes 3, info takes 2
+        */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-8">
+          {/* Right col: Contact form (desktop) / Top on mobile */}
+          <div className="order-1 lg:col-span-3 lg:order-2">
+            <ContactForm />
+          </div>
+
+          {/* Left col: Company Info + Map + WhatsApp (desktop) / Bottom on mobile */}
+          <div className="order-2 flex flex-col gap-6 lg:col-span-2 lg:order-1 lg:gap-8">
+            <CompanyInfo />
+            <MapEmbed />
+            <WhatsAppCTA />
+          </div>
         </div>
       </div>
     </div>
@@ -59,9 +67,9 @@ export default function ContactPage() {
 
 function CompanyInfo() {
   return (
-    <section className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-text">Company Information</h2>
-      <dl className="mt-5 space-y-4 text-sm">
+    <section className="w-full rounded-xl border border-border bg-surface p-4 shadow-sm sm:p-5 md:p-6">
+      <h2 className="text-base font-semibold text-text sm:text-lg">Company Information</h2>
+      <dl className="mt-4 space-y-4 text-sm sm:mt-5">
         {/* Address */}
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
@@ -70,7 +78,7 @@ function CompanyInfo() {
           <div>
             <dt className="font-medium text-text">Address</dt>
             <dd className="mt-0.5 text-text-muted">
-              11116 grader street,
+              11116 Grader Street,
               <br />
               Dallas Texas, USA. 75238
             </dd>
@@ -86,11 +94,11 @@ function CompanyInfo() {
             <dt className="font-medium text-text">Email</dt>
 
             {/* Primary — Support */}
-            <dd className="flex items-center gap-2">
+            <dd className="flex flex-wrap items-center gap-2">
               <HeadphonesIcon className="h-3.5 w-3.5 shrink-0 text-brand-500" />
               <a
                 href="mailto:support@awaproducts.com"
-                className="text-brand-600 hover:text-brand-700 hover:underline"
+                className="text-brand-600 hover:text-brand-700 hover:underline break-all"
               >
                 support@awaproducts.com
               </a>
@@ -100,22 +108,22 @@ function CompanyInfo() {
             </dd>
 
             {/* Corporate */}
-            <dd className="flex items-center gap-2">
+            <dd className="flex flex-wrap items-center gap-2">
               <Briefcase className="h-3.5 w-3.5 shrink-0 text-text-muted" />
               <a
                 href="mailto:Zubiacorp@awaproducts.com"
-                className="text-text hover:text-brand-600 hover:underline"
+                className="text-text hover:text-brand-600 hover:underline break-all"
               >
                 Zubiacorp@awaproducts.com
               </a>
             </dd>
 
             {/* Direct */}
-            <dd className="flex items-center gap-2">
+            <dd className="flex flex-wrap items-center gap-2">
               <UserCircle className="h-3.5 w-3.5 shrink-0 text-text-muted" />
               <a
                 href="mailto:sayed@awaproducts.com"
-                className="text-text hover:text-brand-600 hover:underline"
+                className="text-text hover:text-brand-600 hover:underline break-all"
               >
                 sayed@awaproducts.com
               </a>
@@ -135,7 +143,7 @@ function CompanyInfo() {
                 href="tel:(469)779-0221"
                 className="text-brand-600 hover:text-brand-700 hover:underline"
               >
-                (469)779-0221
+                (469) 779-0221
               </a>
             </dd>
           </div>
@@ -160,17 +168,17 @@ function CompanyInfo() {
   );
 }
 
-/* ── Google Maps Embed Placeholder ───────── */
+/* ── Google Maps Embed ──────────────────── */
 
 function MapEmbed() {
   return (
-    <section className="overflow-hidden rounded-xl border border-border shadow-sm">
-      <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+    <section className="w-full overflow-hidden rounded-xl border border-border shadow-sm">
+      {/* Mobile: fixed 300px height. Desktop: full height */}
+      <div className="relative w-full h-[250px] sm:h-[300px] lg:h-full lg:aspect-video">
         <iframe
           title="AWA Products Location"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3350.4937132349023!2d-96.69162292443866!3d32.885112478454246!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x864ea096e981be1f%3A0xc3907c6d9d797334!2s11116%20Grader%20St%2C%20Dallas%2C%20TX%2075238%2C%20USA!5e0!3m2!1sen!2s!4v1775662826371!5m2!1sen!2s"
           className="absolute inset-0 h-full w-full border-0"
-          style={{ border: 0 }}
           allowFullScreen={true}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
@@ -183,7 +191,6 @@ function MapEmbed() {
 /* ── WhatsApp CTA ────────────────────────── */
 
 function WhatsAppCTA() {
-  // Replace with your actual WhatsApp business number
   const WHATSAPP_NUMBER = "4697790222";
   const message = encodeURIComponent(
     "Hi AWA Products, I'd like to inquire about wholesale pricing. Can you help?"
@@ -195,11 +202,11 @@ function WhatsAppCTA() {
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-center gap-3 rounded-xl bg-[#25D366] px-6 py-5 text-center text-white shadow-md transition hover:bg-[#20bd5a] hover:shadow-lg"
+      className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#25D366] px-4 py-4 text-center text-white shadow-md transition hover:bg-[#20bd5a] hover:shadow-lg sm:px-5 sm:py-5"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-7 w-7"
+        className="h-7 w-7 shrink-0"
         fill="currentColor"
         viewBox="0 0 24 24"
       >
@@ -214,5 +221,3 @@ function WhatsAppCTA() {
     </a>
   );
 }
-
-/* ── End of file ── */
