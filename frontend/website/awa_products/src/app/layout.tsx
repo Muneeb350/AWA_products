@@ -31,6 +31,9 @@ export const metadata: Metadata = {
       { url: "/images/logo.png", sizes: "180x180", type: "image/png" },
     ],
   },
+  other: {
+    "color-scheme": "light",
+  },
 };
 
 export default function RootLayout({
@@ -42,8 +45,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ colorScheme: "light" }}
     >
-      <body className="min-h-full flex flex-col">
+      <body
+        className="min-h-full flex flex-col bg-surface text-text"
+        style={{ colorScheme: "light" }}
+      >
         <QueryProvider>
           <Header />
           <main className="flex-1">{children}</main>
