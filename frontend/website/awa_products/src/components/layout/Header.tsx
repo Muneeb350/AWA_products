@@ -3,9 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CategoriesDropdown from "./CategoriesDropdown";
-import { SUB_CATEGORIES } from "@/constants/categories";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -17,182 +16,141 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileSubOpen, setMobileSubOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        {/* Logo + Brand block */}
-        <Link href="/" className="flex shrink-0 flex-col items-center gap-0.5">
-          <Image
-            src="/images/logo.png"
-            alt="AWA Products logo"
-            width={150}
-            height={50}
-            priority
-            style={{ width: 'auto', height: 'auto' }}
-            className="object-contain"
-          />
-          <span className="text-[14px] font-bold uppercase tracking-[0.2em] text-brand-700">
-            AWA Products
-          </span>
+    <header 
+      className={`sticky top-0 z-50 transition-all duration-300 px-4 py-3 ${
+        scrolled ? "top-2" : "top-0"
+      }`}
+    >
+      <div className={`mx-auto max-w-7xl flex items-center justify-between px-6 py-3 transition-all duration-300 rounded-[2rem] border ${
+        scrolled 
+        ? "bg-white/70 backdrop-blur-xl border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]" 
+        : "bg-white/40 backdrop-blur-md border-transparent"
+      }`}>
+        
+        {/* Logo Section */}
+        <Link href="/" className="flex shrink-0 items-center gap-3 group !font-sans">
+          <div className="relative overflow-hidden rounded-lg transition-transform group-hover:scale-105">
+            <Image
+              src="/images/logo.png"
+              alt="AWA Products logo"
+              width={120}
+              height={40}
+              priority
+              className="object-contain"
+            />
+          </div>
+          <div className="flex flex-col border-l border-black/10 pl-3">
+             <span className="text-sm font-black uppercase tracking-widest text-brand-800 leading-none">
+                AWA
+             </span>
+             <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-600/80">
+                Products
+             </span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-10 md:flex">
+        <nav className="hidden items-center gap-8 md:flex !font-sans">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`text-xl font-normal transition ${
-                pathname === link.href
-                  ? "text-brand-600"
-                  : "text-text hover:text-brand-600"
+              className={`relative text-[15px] font-semibold tracking-wide transition-all duration-300 group ${
+                pathname === link.href ? "text-brand-600" : "text-gray-700 hover:text-brand-600"
               }`}
             >
               {link.label}
+              <span className={`absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-brand-600 transition-all duration-300 ${
+                pathname === link.href ? "opacity-100" : "opacity-0 group-hover:opacity-100 scale-50 group-hover:scale-100"
+              }`} />
             </Link>
           ))}
-
-          {/* Categories dropdown (desktop only) */}
+          <div className="h-6 w-[1px] bg-black/10" />
           <CategoriesDropdown />
         </nav>
 
         {/* Desktop CTA */}
-        <Link
-          href="/contact"
-          className="hidden rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-text-inverse shadow-sm transition hover:bg-brand-700 md:inline-flex"
-        >
-          Get a Quote
-        </Link>
+        <div className="flex items-center gap-4 !font-sans">
+          <Link
+            href="/contact"
+            className="hidden md:inline-flex items-center justify-center rounded-full bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition-all hover:bg-brand-700 hover:shadow-brand-700/40 hover:-translate-y-0.5 active:scale-95"
+          >
+            Get a Quote
+          </Link>
 
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          aria-label="Toggle menu"
-          className="md:hidden"
-          onClick={() => setMobileOpen((v) => !v)}
-        >
-          {mobileOpen ? <CloseIcon /> : <HamburgerIcon />}
-        </button>
+          <button
+            type="button"
+            className="md:hidden p-2 rounded-xl bg-brand-50 text-brand-700 transition-active"
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            {mobileOpen ? <CloseIcon /> : <HamburgerIcon />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="border-t border-border bg-surface px-4 py-4 md:hidden">
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                  pathname === link.href
-                    ? "bg-brand-50 text-brand-700"
-                    : "text-text hover:bg-surface-alt"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+      <div className={`absolute left-4 right-4 mt-2 overflow-hidden transition-all duration-300 ease-in-out md:hidden ${
+        mobileOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+      }`}>
+        <div className="rounded-3xl border border-white/40 bg-white/90 p-5 backdrop-blur-2xl shadow-2xl !font-sans">
+          <nav className="flex flex-col gap-2">
+            {navLinks.map((link) => {
+              // 1. Mobile list se duplicate "Contact" hide karne ke liye logic
+              if (link.label === "Contact") return null;
 
-            {/* Mobile sub-categories accordion */}
-            <div>
-              <button
-                onClick={() => setMobileSubOpen((v) => !v)}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-text transition hover:bg-surface-alt"
-              >
-                Categories
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`h-4 w-4 transition-transform duration-200 ${mobileSubOpen ? "rotate-180" : ""}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center justify-between rounded-2xl px-4 py-3 text-base transition-all ${
+                    pathname === link.href
+                      ? "bg-brand-600 text-white !font-bold shadow-md shadow-brand-600/20"
+                      : "text-gray-700 font-semibold hover:bg-brand-50"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-
-              {mobileSubOpen && (
-                <div className="ml-4 mt-1 flex flex-col gap-0.5 border-l-2 border-border pl-3">
-                  {SUB_CATEGORIES.map(({ label, slug }) => {
-                    const href = `/products/${slug}`;
-                    const isActive = pathname === href;
-                    return (
-                      <Link
-                        key={slug}
-                        href={href}
-                        onClick={() => setMobileOpen(false)}
-                        className={`rounded-lg px-3 py-2 text-sm transition ${
-                          isActive
-                            ? "bg-brand-50 font-semibold text-brand-700"
-                            : "text-text-muted hover:bg-surface-alt hover:text-text"
-                        }`}
-                      >
-                        {label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
+                  <span className="tracking-normal uppercase text-sm !font-sans">{link.label}</span>
+                  {pathname === link.href && <span className="h-2 w-2 rounded-full bg-white animate-pulse" />}
+                </Link>
+              );
+            })}
+            
+            {/* 2. Main "Contact Us" Button - Iska font force kiya gaya hai */}
             <Link
               href="/contact"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 rounded-lg bg-brand-600 px-3 py-2.5 text-center text-sm font-semibold text-text-inverse transition hover:bg-brand-700"
+              className="mt-4 flex items-center justify-center rounded-2xl bg-brand-600 py-4 text-xs !font-sans font-bold uppercase tracking-[0.2em] text-white shadow-lg shadow-brand-600/30 active:scale-95 transition-transform"
             >
-              Get a Quote
+              Contact Us
             </Link>
           </nav>
         </div>
-      )}
+      </div>
     </header>
   );
 }
 
-/* ── Inline SVG icons ── */
-
 function HamburgerIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-6 w-6 text-text"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4 6h16M4 12h16M4 18h16"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
     </svg>
   );
 }
 
 function CloseIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-6 w-6 text-text"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 18L18 6M6 6l12 12"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
   );
 }

@@ -1,27 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/providers/QueryProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "AWA Products — Premium Wholesale Household & Cleaning Supplies",
+    default: "AWA Products — Manufacturer of Euzzy & Premium Cleaning Brands",
     template: "%s | AWA Products",
   },
   description:
-    "Your trusted partner for premium wholesale household and cleaning products. Surface cleaners, disinfectants, laundry care, kitchen essentials, and more — delivered in bulk.",
+    "AWA Products is the parent manufacturer behind Euzzy and a growing portfolio of innovative household and cleaning brands. Industrial-scale formulation, built for distributors, retailers, and institutions.",
   icons: {
     icon: [
       { url: "/images/logo.png", type: "image/png", sizes: "any" },
@@ -44,7 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
       style={{ colorScheme: "light" }}
     >
       <body

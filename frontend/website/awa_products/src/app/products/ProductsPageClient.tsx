@@ -83,11 +83,11 @@ export default function ProductsPageClient() {
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-text">
-          All Products
+          Euzzy Product Catalog
         </h1>
         <p className="mt-2 text-text-muted">
-          Browse our full wholesale catalog. Filter by category or search by
-          name.
+          Products manufactured by AWA Products under the Euzzy brand.
+          Filter by category or search by name.
         </p>
       </div>
 

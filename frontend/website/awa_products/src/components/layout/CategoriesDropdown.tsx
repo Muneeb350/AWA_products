@@ -44,7 +44,7 @@ export default function CategoriesDropdown() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute left-1/2 z-50 mt-2 w-56 -translate-x-1/2 rounded-xl border border-border bg-surface py-2 shadow-lg"
+            className="absolute left-1/2 z-50 mt-2 w-56 -translate-x-1/2 rounded-2xl border border-white/30 bg-white/80 py-2 shadow-xl shadow-black/10 backdrop-blur-lg"
           >
             {SUB_CATEGORIES.map(({ label, slug }) => {
               const isActive = activeSlug === slug;

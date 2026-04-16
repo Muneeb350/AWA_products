@@ -20,10 +20,9 @@ export default function Footer() {
             />
             <h4 className="text-lg font-bold text-brand-700">AWA Products</h4>
             <p className="mt-2 text-sm text-text-muted">
-              Your trusted partner for premium household &amp; cleaning products.
-              <br />
-              Delivering quality surface cleaners, disinfectants, laundry care,
-              and more — straight to your business.
+              Parent manufacturer of <strong className="text-brand-700">Euzzy</strong> and upcoming
+              innovative brands. Industrial-scale production built for
+              distributors, retailers, and institutions.
             </p>
           </div>
 
@@ -54,14 +53,18 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Categories */}
+          {/* Brands */}
           <div>
-            <h5 className="text-sm font-semibold text-text">Categories</h5>
+            <h5 className="text-sm font-semibold text-text">Our Brands</h5>
             <ul className="mt-3 space-y-2 text-sm text-text-muted">
-              <li>Surface Cleaners</li>
-              <li>Laundry Care</li>
-              <li>Kitchen Essentials</li>
-              <li>Disinfectants</li>
+              <li className="font-medium text-brand-700">Euzzy</li>
+              <li className="italic opacity-60">Upcoming Brand</li>
+              <li className="italic opacity-60">Upcoming Brand</li>
+              <li>
+                <Link href="/about" className="hover:text-brand-600">
+                  View All Brands →
+                </Link>
+              </li>
             </ul>
           </div>
 
