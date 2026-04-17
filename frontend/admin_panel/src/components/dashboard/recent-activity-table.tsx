@@ -1,7 +1,20 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 
 const recentOrders = [
@@ -70,32 +83,57 @@ function getStatusBadge(status: string) {
 
 export function RecentActivityTable() {
   return (
-    <Card className="border-zinc-200 shadow-sm">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Recent Orders</CardTitle>
+        <CardTitle>Recent Orders</CardTitle>
         <CardDescription>Latest orders and their status</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0 pb-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Product</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="hidden md:table-cell">Date</TableHead>
+            <TableRow className="hover:bg-transparent border-zinc-100">
+              <TableHead className="pl-5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                Order ID
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                Customer
+              </TableHead>
+              <TableHead className="hidden sm:table-cell text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                Product
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                Amount
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                Status
+              </TableHead>
+              <TableHead className="hidden md:table-cell pr-5 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                Date
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {recentOrders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-medium">{order.id}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>{order.product}</TableCell>
-                <TableCell>{order.amount}</TableCell>
+              <TableRow
+                key={order.id}
+                className="border-zinc-100 hover:bg-zinc-50/50 transition-colors"
+              >
+                <TableCell className="pl-5 font-mono text-xs font-medium text-zinc-500">
+                  {order.id}
+                </TableCell>
+                <TableCell className="font-medium text-zinc-800 text-sm">
+                  {order.customer}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell text-zinc-500 text-sm">
+                  {order.product}
+                </TableCell>
+                <TableCell className="font-semibold text-zinc-900 text-sm">
+                  {order.amount}
+                </TableCell>
                 <TableCell>{getStatusBadge(order.status)}</TableCell>
-                <TableCell className="hidden md:table-cell">{order.date}</TableCell>
+                <TableCell className="hidden md:table-cell pr-5 text-zinc-400 text-sm">
+                  {order.date}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

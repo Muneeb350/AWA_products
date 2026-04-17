@@ -1,7 +1,21 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
 
 const salesData = [
   { month: "Jan", sales: 4000 },
@@ -20,53 +34,71 @@ const salesData = [
 
 export function SalesChart() {
   return (
-    <Card className="border-zinc-200 shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-lg">Monthly Sales Growth</CardTitle>
-        <CardDescription>Sales performance over the past 12 months</CardDescription>
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Monthly Sales</CardTitle>
+            <CardDescription>Revenue over the last 12 months</CardDescription>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-xs text-zinc-400">Sales</span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="w-full h-[300px]">
+        <div className="w-full h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={salesData}
-              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
             >
               <defs>
                 <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#18181b" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#18181b" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#22c55e" stopOpacity={0.18} />
+                  <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#f4f4f5"
+              />
               <XAxis
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#71717a", fontSize: 12 }}
+                tick={{ fill: "#a1a1aa", fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#71717a", fontSize: 12 }}
+                tick={{ fill: "#a1a1aa", fontSize: 11 }}
                 tickFormatter={(value) => `$${value / 1000}k`}
               />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#fff",
-                  border: "1px solid #e4e4e7",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid #f4f4f5",
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                  fontSize: "12px",
                 }}
-                formatter={(value) => [`$${Number(value).toLocaleString()}`, "Sales"]}
+                formatter={(value) => [
+                  `$${Number(value).toLocaleString()}`,
+                  "Sales",
+                ]}
               />
               <Area
                 type="monotone"
                 dataKey="sales"
-                stroke="#18181b"
+                stroke="#22c55e"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorSales)"
+                dot={false}
+                activeDot={{ r: 4, fill: "#22c55e", strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>

@@ -1,24 +1,101 @@
 @import "tailwindcss";
 
+/* ── Light tokens ────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #09090b;
+  --background:   #ffffff;
+  --foreground:   #09090b;
+  --brand:        #22c55e;
+  --brand-dark:   #16a34a;
+  --card:         #ffffff;
+  --card-border:  #e4e4e7;
+  --muted-bg:     #f4f4f5;
+  --muted-fg:     #71717a;
+  --input-border: #e4e4e7;
+  --popover:      #ffffff;
 }
 
+/* ── Dark tokens ─────────────────────────────────────────────────────────── */
+.dark {
+  --background:   #09090b;
+  --foreground:   #fafafa;
+  --card:         #111113;
+  --card-border:  rgba(255,255,255,0.08);
+  --muted-bg:     #1c1c1f;
+  --muted-fg:     #a1a1aa;
+  --input-border: rgba(255,255,255,0.12);
+  --popover:      #18181b;
+}
+
+/* ── Tailwind theme mapping ───────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-background:          var(--background);
+  --color-foreground:          var(--foreground);
+  --color-card:                var(--card);
+  --color-card-border:         var(--card-border);
+  --color-brand:               var(--brand);
+  --color-primary:             var(--brand);
+  --color-primary-foreground:  #ffffff;
+  --color-secondary:           var(--muted-bg);
+  --color-secondary-foreground:var(--muted-fg);
+  --color-accent:              var(--muted-bg);
+  --color-accent-foreground:   var(--foreground);
+  --color-destructive:         #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-muted:               var(--muted-bg);
+  --color-muted-foreground:    var(--muted-fg);
+  --color-input:               var(--input-border);
+  --color-ring:                var(--brand);
+  --color-popover:             var(--popover);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-  }
+/* ── Base ────────────────────────────────────────────────────────────────── */
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Smooth theme transitions — only on intentional changes, not on load */
+html.transition-theme *,
+html.transition-theme *::before,
+html.transition-theme *::after {
+  transition:
+    background-color 0.2s ease,
+    border-color     0.2s ease,
+    color            0.15s ease !important;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 transparent;
+}
+.dark * {
+  scrollbar-color: #3f3f46 transparent;
+}
+
+/* ── Selection ───────────────────────────────────────────────────────────── */
+::selection {
+  background-color: rgba(34, 197, 94, 0.2);
+}
+
+/* ── Print (invoice) ─────────────────────────────────────────────────────── */
+@media print {
+  body * { visibility: hidden; }
+  #order-invoice,
+  #order-invoice * { visibility: visible; }
+  #order-invoice {
+    position: fixed;
+    inset: 0;
+    padding: 2.5rem;
+    background: white;
+  }
 }

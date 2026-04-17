@@ -1,26 +1,67 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Download } from "lucide-react"
+import { Plus, Download, BarChart2, RefreshCw } from "lucide-react"
+
+const actions = [
+  {
+    label: "Add New Product",
+    icon: Plus,
+    primary: true,
+  },
+  {
+    label: "Export Report",
+    icon: Download,
+    primary: false,
+  },
+  {
+    label: "View Analytics",
+    icon: BarChart2,
+    primary: false,
+  },
+  {
+    label: "Sync Inventory",
+    icon: RefreshCw,
+    primary: false,
+  },
+]
 
 export function QuickActions() {
   return (
-    <Card className="border-zinc-200 shadow-sm">
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle className="text-lg">Quick Actions</CardTitle>
-        <CardDescription>Common tasks and shortcuts</CardDescription>
+        <CardTitle>Quick Actions</CardTitle>
+        <CardDescription>Shortcuts to common tasks</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button className="flex-1 bg-zinc-900 hover:bg-zinc-800">
-            <Plus className="w-4 h-4" />
-            Add New Product
-          </Button>
-          <Button variant="outline" className="flex-1">
-            <Download className="w-4 h-4" />
-            Export Report
-          </Button>
+        <div className="flex flex-col gap-2">
+          {actions.map(({ label, icon: Icon, primary }) =>
+            primary ? (
+              <Button
+                key={label}
+                className="justify-start gap-3 bg-green-500 hover:bg-green-600 text-white shadow-sm shadow-green-500/20 h-10"
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </Button>
+            ) : (
+              <Button
+                key={label}
+                variant="outline"
+                className="justify-start gap-3 text-zinc-600 hover:text-zinc-900 border-zinc-200 h-10"
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </Button>
+            )
+          )}
         </div>
       </CardContent>
     </Card>
