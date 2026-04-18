@@ -1,198 +1,318 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal, FlatList, Alert } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { 
+  StyleSheet, Text, View, ScrollView, TouchableOpacity, 
+  Alert, Dimensions, Modal, SafeAreaView
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 
-const CUSTOMERS = [
-  { id: '1', name: 'Lonestar Convenience Store', area: 'Houston, TX' },
-  { id: '2', name: 'Austin Family Mart', area: 'Austin, TX' },
-  { id: '3', name: 'Big Tex Gas Station', area: 'Dallas, TX' },
-  { id: '4', name: 'Southwest Grocery', area: 'San Antonio, TX' },
-  { id: '5', name: 'Ranch Supply Co.', area: 'Fort Worth, TX' },
+const { width, height } = Dimensions.get('window');
+
+// Types
+interface Customer {
+  id: string;
+  name: string;
+  area: string;
+  business: string;
+  address: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface CartItem extends Product {
+  quantity: number;
+}
+
+// Mock Data
+const CUSTOMERS: Customer[] = [
+  { id: '1', name: 'James Carter', area: 'Houston, TX', business: 'Carter & Co.', address: '1234 Elm St' },
+  { id: '2', name: 'Naveed Ahmed', area: 'Dallas, TX', business: 'AWA Products', address: '786 Market Rd' },
 ];
 
-const PRODUCTS = [
+const PRODUCTS: Product[] = [
   { id: '1', name: 'Ultra-Shine Glass Cleaner', price: 24.99 },
-  { id: '2', name: 'Heavy Duty Degreaser (5G)', price: 89.00 },
+  { id: '2', name: 'Heavy Duty Degreaser', price: 89.00 },
   { id: '3', name: 'Microfiber Towel Pack', price: 15.50 },
 ];
 
 export default function NewOrderScreen() {
   const router = useRouter();
-  const [selectedCustomer, setSelectedCustomer] = useState<typeof CUSTOMERS[0] | null>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [cart, setCart] = useState<{id: string, name: string, qty: number, price: number}[]>([]);
   
-  const TAX_RATE = 0.0825; 
+  // States
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [generatedOrderID, setGeneratedOrderID] = useState('');
 
-  // --- Quantity Logic ---
-  const updateQuantity = (product: typeof PRODUCTS[0], change: number) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      
-      if (existing) {
-        const newQty = existing.qty + change;
-        if (newQty <= 0) {
-          return prev.filter(item => item.id !== product.id); // Cart se hata do agar 0 ho jaye
-        }
-        return prev.map(item => item.id === product.id ? {...item, qty: newQty} : item);
+  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2);
+
+  // PDF Generation Function
+  const handleGeneratePDF = async (shouldShare: boolean) => {
+    if (!selectedCustomer) return;
+
+    const orderID = generatedOrderID || `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric',
+    });
+
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: 'Helvetica', sans-serif; padding: 40px; color: #1a1a1a; }
+            .header { margin-bottom: 40px; }
+            .company-name { font-size: 26px; font-weight: bold; margin: 0; }
+            .tax-invoice { font-size: 14px; color: #666; margin-top: 5px; }
+            .info-grid { display: flex; justify-content: space-between; margin-top: 30px; }
+            .invoice-details { text-align: right; font-size: 14px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+            th { text-align: left; font-size: 12px; color: #666; border-bottom: 1px solid #eee; padding: 10px 0; }
+            td { padding: 15px 0; font-size: 14px; border-bottom: 1px dotted #eee; }
+            .totals { float: right; width: 200px; margin-top: 20px; }
+            .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
+            .grand-total { border-top: 2px solid #000; font-weight: bold; font-size: 18px; margin-top: 10px; padding-top: 10px; }
+            .footer { margin-top: 100px; font-size: 12px; color: #888; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1 class="company-name">AWA Products</h1>
+            <p class="tax-invoice">Tax Invoice</p>
+          </div>
+          <div class="info-grid">
+            <div>
+              <p><strong>Bill To</strong></p>
+              <p>${selectedCustomer.name}<br/>${selectedCustomer.business}<br/>${selectedCustomer.address}<br/>${selectedCustomer.area}, USA</p>
+            </div>
+            <div class="invoice-details">
+              <p><strong>Invoice ${orderID}</strong><br/>Date: ${currentDate}<br/>Status: Delivered</p>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Unit Price</th><th style="text-align:right">Total</th></tr>
+            </thead>
+            <tbody>
+              ${cart.map(item => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td style="text-align:center">${item.quantity}</td>
+                  <td style="text-align:right">$${item.price.toFixed(2)}</td>
+                  <td style="text-align:right">$${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="totals">
+            <div class="total-row"><span>Subtotal:</span><span>$${totalAmount}</span></div>
+            <div class="total-row grand-total"><span>Total:</span><span>$${totalAmount}</span></div>
+          </div>
+          <div style="clear:both"></div>
+          <p class="footer">Thank you for your purchase.</p>
+        </body>
+      </html>
+    `;
+
+    try {
+      if (shouldShare) {
+        const { uri } = await Print.printToFileAsync({ html: htmlContent });
+        await Sharing.shareAsync(uri);
+      } else {
+        await Print.printAsync({ html: htmlContent });
       }
-      
-      if (change > 0) {
-        return [...prev, { ...product, qty: 1 }]; // Naya item add karo
+    } catch (e) {
+      Alert.alert("Error", "Could not process PDF");
+    }
+  };
+
+  const handleConfirmOrder = () => {
+    if (!selectedCustomer || cart.length === 0) {
+      Alert.alert("Error", "Please select a customer and products.");
+      return;
+    }
+
+    const newID = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+    setGeneratedOrderID(newID);
+
+    // Main Alert Message
+    Alert.alert(
+      "Order Confirmed Successfully! ✅",
+      "What would you like to do next?",
+      [
+        { text: "Preview Invoice", onPress: () => setShowPreviewModal(true) },
+        { text: "Share PDF", onPress: () => handleGeneratePDF(true) },
+        { text: "Done", onPress: () => router.replace('/(tabs)/orders'), style: "cancel" }
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const addToCart = (product: Product) => {
+    setCart((currentCart) => {
+      const exists = currentCart.find(i => i.id === product.id);
+      if (exists) {
+        return currentCart.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
       }
-      return prev;
+      return [...currentCart, { ...product, quantity: 1 }];
     });
   };
 
-  const getItemQty = (id: string) => {
-    return cart.find(item => item.id === id)?.qty || 0;
-  };
-
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + tax;
-
-  // --- Validation Alert Logic ---
-  const handleCompleteBooking = () => {
-    if (!selectedCustomer) {
-      Alert.alert("Missing Information", "Please select a customer first.");
-      return;
-    }
-    if (cart.length === 0) {
-      Alert.alert("Empty Cart", "Please add at least one product to book an order.");
-      return;
-    }
-    
-    Alert.alert("Order Confirmed", `Success! Order for ${selectedCustomer.name} has been placed.`);
-    router.back();
-  };
-
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Order Booking' }} />
+    <SafeAreaView style={styles.container}>
+      {/* Header Nav */}
+      <View style={styles.headerNav}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
+          <Ionicons name="arrow-back" size={24} color="#1e293b" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>New Booking</Text>
+        <View style={{ width: 40 }} />
+      </View>
 
-      <ScrollView style={styles.content}>
-        {/* 1. CUSTOMER SELECTION */}
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+        {/* Step 1: Customer */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>1. Customer</Text>
-          <TouchableOpacity 
-            style={[styles.selector, selectedCustomer && styles.selectorActive]} 
-            onPress={() => setIsModalVisible(true)}
-          >
-            <Ionicons name="business" size={20} color={selectedCustomer ? "#059669" : "#64748b"} />
-            <View style={{ flex: 1, marginLeft: 10 }}>
-              <Text style={[styles.selectorText, selectedCustomer && styles.selectedName]}>
-                {selectedCustomer ? selectedCustomer.name : "Select Store..."}
-              </Text>
-            </View>
-            <Ionicons name="chevron-down" size={20} color="#94a3b8" />
-          </TouchableOpacity>
+          <Text style={styles.sectionTitle}>1. Select Customer</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {CUSTOMERS.map(c => (
+              <TouchableOpacity 
+                key={c.id} 
+                onPress={() => setSelectedCustomer(c)}
+                style={[styles.custCard, selectedCustomer?.id === c.id && styles.activeCust]}
+              >
+                <Text style={[styles.custName, selectedCustomer?.id === c.id && {color: '#fff'}]}>{c.name}</Text>
+                <Text style={[styles.custArea, selectedCustomer?.id === c.id && {color: '#dcfce7'}]}>{c.area}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
-        {/* 2. PRODUCTS WITH QTY BUTTONS */}
+        {/* Step 2: Products */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>2. Select Products</Text>
-          {PRODUCTS.map(item => (
-            <View key={item.id} style={styles.productRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.pName}>{item.name}</Text>
-                <Text style={styles.pPrice}>${item.price.toFixed(2)}</Text>
+          {PRODUCTS.map(p => (
+            <TouchableOpacity key={p.id} style={styles.productRow} onPress={() => addToCart(p)}>
+              <View>
+                <Text style={styles.pName}>{p.name}</Text>
+                <Text style={styles.pPrice}>${p.price.toFixed(2)}</Text>
               </View>
-              
-              <View style={styles.qtyContainer}>
-                <TouchableOpacity onPress={() => updateQuantity(item, -1)} style={styles.qtyBtn}>
-                  <Ionicons name="remove-circle-outline" size={24} color="#ef4444" />
-                </TouchableOpacity>
-                
-                <Text style={styles.qtyText}>{getItemQty(item.id)}</Text>
-                
-                <TouchableOpacity onPress={() => updateQuantity(item, 1)} style={styles.qtyBtn}>
-                  <Ionicons name="add-circle-outline" size={24} color="#059669" />
-                </TouchableOpacity>
-              </View>
-            </View>
+              <Ionicons name="add-circle" size={28} color="#059669" />
+            </TouchableOpacity>
           ))}
         </View>
 
-        {/* 3. ORDER SUMMARY */}
+        {/* Summary */}
         {cart.length > 0 && (
-          <View style={styles.summaryBox}>
-            <Text style={styles.sectionTitle}>Final Bill</Text>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryHeading}>Booking Summary</Text>
             {cart.map(item => (
-              <View key={item.id} style={styles.cartItem}>
-                <Text style={styles.cartText}>{item.qty}x {item.name}</Text>
-                <Text style={styles.cartText}>${(item.qty * item.price).toFixed(2)}</Text>
+              <View key={item.id} style={styles.summaryRow}>
+                <Text style={{color: '#94a3b8'}}>{item.quantity}x {item.name}</Text>
+                <Text style={{color: '#fff'}}>${(item.price * item.quantity).toFixed(2)}</Text>
               </View>
             ))}
             <View style={styles.divider} />
-            <View style={styles.billRow}><Text>Subtotal:</Text><Text>${subtotal.toFixed(2)}</Text></View>
-            <View style={styles.billRow}><Text>Sales Tax (8.25%):</Text><Text>${tax.toFixed(2)}</Text></View>
-            <View style={styles.billRow}><Text style={styles.totalText}>Total:</Text><Text style={styles.totalText}>${total.toFixed(2)}</Text></View>
+            <View style={styles.totalRow}>
+              <Text style={{color: '#94a3b8', fontWeight: 'bold'}}>Total Amount</Text>
+              <Text style={{color: '#fff', fontSize: 22, fontWeight: 'bold'}}>${totalAmount}</Text>
+            </View>
           </View>
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.confirmButton}
-          onPress={handleCompleteBooking}
-        >
-          <Text style={styles.confirmText}>Confirm Booking</Text>
+      {/* Main Confirm Button */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirmOrder}>
+          <Text style={styles.btnText}>Confirm Order</Text>
+          <Ionicons name="checkmark-done" size={20} color="#fff" style={{marginLeft: 8}} />
         </TouchableOpacity>
       </View>
 
-      {/* MODAL (Same as before) */}
-      <Modal visible={isModalVisible} animationType="fade" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+      {/* PREVIEW MODAL */}
+      <Modal visible={showPreviewModal} animationType="slide" transparent={true}>
+        <View style={styles.modalBg}>
+          <View style={styles.modalBox}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Customer</Text>
-              <TouchableOpacity onPress={() => setIsModalVisible(false)}><Ionicons name="close" size={24} /></TouchableOpacity>
+              <Text style={styles.modalTitle}>Invoice Preview</Text>
+              <TouchableOpacity onPress={() => setShowPreviewModal(false)}>
+                <Ionicons name="close" size={24} color="#000" />
+              </TouchableOpacity>
             </View>
-            <FlatList
-              data={CUSTOMERS}
-              renderItem={({ item }) => (
-                <TouchableOpacity style={styles.customerItem} onPress={() => { setSelectedCustomer(item); setIsModalVisible(false); }}>
-                  <Text style={styles.custName}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-            />
+            
+            <ScrollView style={styles.previewContent}>
+              <View style={styles.previewInvoice}>
+                <Text style={{fontSize: 20, fontWeight: 'bold'}}>AWA Products</Text>
+                <Text style={{color: '#666'}}>Order ID: {generatedOrderID}</Text>
+                <View style={{height: 1, backgroundColor: '#eee', marginVertical: 15}} />
+                
+                <Text style={{fontWeight: 'bold', marginBottom: 5}}>Bill To:</Text>
+                <Text>{selectedCustomer?.name}</Text>
+                <Text>{selectedCustomer?.business}</Text>
+                
+                <View style={{marginTop: 20}}>
+                  {cart.map(i => (
+                    <View key={i.id} style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5}}>
+                      <Text>{i.quantity}x {i.name}</Text>
+                      <Text>${(i.price * i.quantity).toFixed(2)}</Text>
+                    </View>
+                  ))}
+                </View>
+                
+                <View style={{height: 1, backgroundColor: '#eee', marginVertical: 15}} />
+                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                  <Text style={{fontWeight: 'bold'}}>Grand Total</Text>
+                  <Text style={{fontWeight: 'bold', color: '#059669', fontSize: 18}}>${totalAmount}</Text>
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity style={styles.shareBtn} onPress={() => { handleGeneratePDF(true); setShowPreviewModal(false); }}>
+                <Text style={{color: '#fff', fontWeight: 'bold'}}>Share Now</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
-  content: { padding: 20 },
-  section: { marginBottom: 25 },
-  sectionTitle: { fontSize: 13, fontWeight: 'bold', color: '#94a3b8', textTransform: 'uppercase', marginBottom: 10 },
-  selector: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 15, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0' },
-  selectorActive: { borderColor: '#059669', backgroundColor: '#f0fdf4' },
-  selectorText: { fontSize: 16, color: '#64748b' },
-  selectedName: { color: '#065f46', fontWeight: 'bold' },
-  productRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: 15, borderRadius: 15, marginBottom: 10, elevation: 1 },
-  pName: { fontSize: 15, fontWeight: '600', color: '#334155' },
-  pPrice: { fontSize: 13, color: '#059669', fontWeight: 'bold' },
-  qtyContainer: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  qtyBtn: { padding: 5 },
-  qtyText: { fontSize: 16, fontWeight: 'bold', minWidth: 20, textAlign: 'center' },
-  summaryBox: { backgroundColor: '#fff', padding: 20, borderRadius: 20, marginBottom: 100, borderTopWidth: 4, borderTopColor: '#059669' },
-  cartItem: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  cartText: { color: '#475569', fontSize: 14 },
-  divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 15 },
-  billRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  totalText: { fontWeight: 'bold', fontSize: 18, color: '#1e293b' },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9' },
-  confirmButton: { backgroundColor: '#059669', padding: 18, borderRadius: 15, alignItems: 'center' },
-  confirmText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20, maxHeight: '70%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 18, fontWeight: 'bold' },
-  customerItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  custName: { fontSize: 16, fontWeight: 'bold' },
-});
+  headerNav: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, paddingTop: 40, backgroundColor: '#fff', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: 'bold' },
+  iconBtn: { padding: 8, backgroundColor: '#f1f5f9', borderRadius: 10 },
+  section: { padding: 20 },
+  sectionTitle: { fontSize: 12, fontWeight: 'bold', color: '#94a3b8', marginBottom: 12, textTransform: 'uppercase' },
+  custCard: { padding: 15, backgroundColor: '#fff', borderRadius: 15, marginRight: 10, borderWidth: 1, borderColor: '#e2e8f0', width: 130 },
+  activeCust: { backgroundColor: '#059669', borderColor: '#059669' },
+  custName: { fontWeight: 'bold', fontSize: 14 },
+  custArea: { fontSize: 11, color: '#64748b' },
+  productRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#fff', padding: 18, borderRadius: 15, marginBottom: 8, alignItems: 'center' },
+  pName: { fontWeight: '600' },
+  pPrice: { color: '#059669', fontWeight: 'bold' },
+  summaryCard: { margin: 20, backgroundColor: '#1e293b', padding: 20, borderRadius: 20 },
+  summaryHeading: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 15 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  divider: { height: 1, backgroundColor: '#334155', marginVertical: 15 },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  bottomBar: { padding: 20, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9' },
+  confirmBtn: { backgroundColor: '#059669', padding: 18, borderRadius: 15, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+
+  // Modal Preview Styles
+  modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
+  modalBox: { backgroundColor: '#fff', borderRadius: 25, maxHeight: '80%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  modalTitle: { fontSize: 16, fontWeight: 'bold' },
+  previewContent: { padding: 20 },
+  previewInvoice: { padding: 20, backgroundColor: '#f8fafc', borderRadius: 15, borderWidth: 1, borderColor: '#e2e8f0' },
+  modalFooter: { padding: 20 },
+  shareBtn: { backgroundColor: '#1e293b', padding: 15, borderRadius: 12, alignItems: 'center' }
+}); 
