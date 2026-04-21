@@ -1,166 +1,120 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  Image,
-  KeyboardAvoidingView, 
-  Platform,
-  ScrollView 
-} from 'react-native';
-import { useRouter } from 'expo-router';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
+  const router = useRouter();
+  const { role } = useLocalSearchParams(); // Yeh check karega ke salesman hai ya customer
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
 
   const handleLogin = () => {
-    // Basic validation
-    if (email.trim() && password.trim()) {
-      router.replace('/(tabs)');
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    // Filhal ke liye simple logic
+    if (role === 'salesman') {
+      router.replace('/(salesman)/dashboard'); // Salesman dashboard par jaye
     } else {
-      alert("Please Enter Email and Password!");
+      router.replace('/(customer)/shop'); // Customer shop par jaye
     }
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        <View style={styles.innerContainer}>
-          
-          {/* Logo Section */}
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('@/assets/images/logo.png')} 
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.LogoText}>AWA PRODUCTS</Text>
-            <Text style={styles.subLogoText}>Sales Team</Text>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <View style={styles.content}>
+          {/* Back Button */}
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#1e293b" />
+          </TouchableOpacity>
+
+          <View style={styles.headerArea}>
+            <Text style={styles.welcomeText}>Welcome Back!</Text>
+            <Text style={styles.subText}>
+              Logging in as <Text style={styles.roleHighlight}>{role === 'salesman' ? 'Company Salesman' : 'Shop Owner'}</Text>
+            </Text>
           </View>
 
-          {/* Input Fields */}
-          <View style={styles.formContainer}>
-            <Text style={styles.label}>Email Address</Text>
-            <TextInput 
-              style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#94a3b8"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Ionicons name="mail-outline" size={20} color="#64748b" style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Email Address" 
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
-            <Text style={styles.label}>Password</Text>
-            <TextInput 
-              style={styles.input}
-              placeholder="Enter password"
-              placeholderTextColor="#94a3b8"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+            <View style={styles.inputGroup}>
+              <Ionicons name="lock-closed-outline" size={20} color="#64748b" style={styles.inputIcon} />
+              <TextInput 
+                style={styles.input} 
+                placeholder="Password" 
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry 
+              />
+            </View>
 
-            {/* Login Button */}
-            <TouchableOpacity 
-              style={styles.loginButton} 
-              onPress={handleLogin}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.loginButtonText}>Login to Dashboard</Text>
+            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+              <Text style={styles.loginBtnText}>Login</Text>
             </TouchableOpacity>
-          </View>
 
-          <Text style={styles.footerText}>Powered by AWA Products v1.0</Text>
+            {/* Registration Link: Sirf Customer ke liye show hoga */}
+            {role === 'customer' && (
+              <TouchableOpacity 
+                style={styles.registerLink} 
+                onPress={() => router.push('/register')}
+              >
+                <Text style={styles.registerText}>
+                  Don't have an account? <Text style={styles.registerHighlight}>Register Now</Text>
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  innerContainer: {
-    paddingHorizontal: 30,
-    paddingVertical: 40,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoImage: {
-    width: 180,  // Aapne iska style nahi dala tha
-    height: 100, // Logo ki height adjust karein
-    marginBottom: 10,
-  },
-  LogoText: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#059669', // Wahi Emerald Green jo Admin Panel mein hai
-    letterSpacing: 1,
-    marginBottom: 5,
-  },
-  subLogoText: {
-    fontSize: 16,
-    color: '#64748b',
-    letterSpacing: 3,
-    textTransform: 'uppercase',
-    fontWeight: '700',
-  },
-  formContainer: {
-    width: '100%',
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
-    marginBottom: 8,
-    marginTop: 15,
-  },
-  input: {
-    backgroundColor: '#ffffff',
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { flex: 1, padding: 25 },
+  backBtn: { marginTop: 10, marginBottom: 30 },
+  headerArea: { marginBottom: 40 },
+  welcomeText: { fontSize: 32, fontWeight: '900', color: '#1e293b' },
+  subText: { fontSize: 16, color: '#64748b', marginTop: 5 },
+  roleHighlight: { color: '#059669', fontWeight: 'bold', textTransform: 'capitalize' },
+  form: { marginTop: 10 },
+  inputGroup: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#f8fafc', 
+    borderRadius: 15, 
+    paddingHorizontal: 15, 
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 16,
-    color: '#1e293b',
+    borderColor: '#f1f5f9'
   },
-  loginButton: {
-    backgroundColor: '#059669', // Emerald 600
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    marginTop: 30,
-    elevation: 4,
-    shadowColor: '#059669',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+  inputIcon: { marginRight: 10 },
+  input: { flex: 1, paddingVertical: 15, fontSize: 16, color: '#1e293b' },
+  loginBtn: { 
+    backgroundColor: '#1e293b', 
+    padding: 18, 
+    borderRadius: 15, 
+    alignItems: 'center', 
+    marginTop: 10 
   },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  footerText: {
-    textAlign: 'center',
-    marginTop: 60,
-    color: '#94a3b8',
-    fontSize: 12,
-  }
+  loginBtnText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  registerLink: { marginTop: 25, alignItems: 'center' },
+  registerText: { color: '#64748b', fontSize: 14 },
+  registerHighlight: { color: '#059669', fontWeight: 'bold' }
 });
