@@ -18,15 +18,15 @@ export default function SalesmanLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'My Visits',
-          tabBarLabel: 'Visits',
-          tabBarIcon: ({ color }) => <Ionicons name="location" size={24} color={color} />,
+          title: 'Dashboard',
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ color }) => <Ionicons name="grid-outline" size={24} color={color} />,
         }}
       />
 
       {/* 2. Catalog (Viewing products for customer) */}
       <Tabs.Screen
-        name="catalog" 
+        name="catalog"
         options={{
           title: 'Product Catalog',
           tabBarLabel: 'Catalog',
@@ -44,7 +44,17 @@ export default function SalesmanLayout() {
         }}
       />
 
-      {/* 4. Profile */}
+      {/* 4. Visits */}
+      <Tabs.Screen
+        name="visits"
+        options={{
+          title: 'Visit History',
+          tabBarLabel: 'Visits',
+          tabBarIcon: ({ color }) => <Ionicons name="location" size={24} color={color} />,
+        }}
+      />
+
+      {/* 5. Profile */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -53,6 +63,7 @@ export default function SalesmanLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="person" size={24} color={color} />,
         }}
       />
+
     </Tabs>
   );
 }

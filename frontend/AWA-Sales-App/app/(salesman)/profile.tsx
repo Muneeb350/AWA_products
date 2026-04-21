@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Share } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Share, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router'; // 1. Router import kiya
 
 export default function SalesmanProfile() {
   const salesmanData = {
     name: "Muneeb Ahmed",
-    id: "AWA-350", // Yeh hai woh unique code
+    id: "AWA-350", 
     phone: "+92 300 1234567"
   };
 
@@ -14,9 +15,17 @@ export default function SalesmanProfile() {
       await Share.share({
         message: `Please download AWA Products App and use my Reference Code: ${salesmanData.id} to place your orders.`,
       });
-    }  catch (error: any) {
-  console.log(error.message);
-}
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
+
+  // 2. Logout function add kiya
+  const handleLogout = () => {
+    Alert.alert("Logout", "Kya aap waqai logout karna chahte hain?", [
+      { text: "Nahi", style: "cancel" },
+      { text: "Haan", onPress: () => router.replace('/') }
+    ]);
   };
 
   return (
@@ -40,7 +49,8 @@ export default function SalesmanProfile() {
         <Text style={styles.codeHint}>Ask customers to enter this code during registration.</Text>
       </View>
 
-      <TouchableOpacity style={styles.logoutBtn}>
+      {/* 3. Button par onPress laga diya */}
+      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
         <Ionicons name="log-out-outline" size={20} color="#ef4444" />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
