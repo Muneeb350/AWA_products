@@ -19,7 +19,7 @@ export default function LoginScreen() {
     if (role === 'salesman') {
       router.replace('/(salesman)/dashboard'); // Salesman dashboard par jaye
     } else {
-      router.replace('/(customer)/shop'); // Customer shop par jaye
+      router.replace('/(customer)'); // Customer home par jaye
     }
   };
 

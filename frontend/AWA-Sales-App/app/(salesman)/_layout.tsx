@@ -18,7 +18,7 @@ export default function SalesmanLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Dashboard',
+          title: 'AWA Products - Dashboard',
           tabBarLabel: 'Dashboard',
           tabBarIcon: ({ color }) => <Ionicons name="grid-outline" size={24} color={color} />,
         }}
@@ -28,7 +28,7 @@ export default function SalesmanLayout() {
       <Tabs.Screen
         name="catalog"
         options={{
-          title: 'Product Catalog',
+          title: 'AWA Products - Catalog',
           tabBarLabel: 'Catalog',
           tabBarIcon: ({ color }) => <Ionicons name="book" size={24} color={color} />,
         }}
@@ -38,7 +38,7 @@ export default function SalesmanLayout() {
       <Tabs.Screen
         name="orders"
         options={{
-          title: 'Order Status',
+          title: 'AWA Products - Order Status',
           tabBarLabel: 'Orders',
           tabBarIcon: ({ color }) => <Ionicons name="receipt-outline" size={24} color={color} />,
         }}
@@ -48,7 +48,7 @@ export default function SalesmanLayout() {
       <Tabs.Screen
         name="visits"
         options={{
-          title: 'Visit History',
+          title: 'AWA Products - Visit History',
           tabBarLabel: 'Visits',
           tabBarIcon: ({ color }) => <Ionicons name="location" size={24} color={color} />,
         }}

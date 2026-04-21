@@ -26,7 +26,7 @@ export default function RegisterScreen() {
     Alert.alert(
       "Success", 
       "Shop Registered Successfully!",
-      [{ text: "OK", onPress: () => router.replace('/(customer)/shop') }]
+      [{ text: "OK", onPress: () => router.replace('/(customer)') }]
     );
   };
 
