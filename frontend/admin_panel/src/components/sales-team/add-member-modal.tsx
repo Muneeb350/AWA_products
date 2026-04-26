@@ -45,13 +45,26 @@ const EMPTY_FORM = (): MemberFormData => ({
 })
 
 export function AddMemberModal({ open, onClose, onSubmit }: AddMemberModalProps) {
-  const [form, setForm]     = useState<MemberFormData>(EMPTY_FORM)
+  // Initialize salesId as "" to avoid SSR/client Math.random() mismatch.
+  // The useEffect below sets it after mount.
+  const [form, setForm] = useState<MemberFormData>({
+    salesId: "",
+    name: "",
+    email: "",
+    phone: "",
+    region: REGIONS[0],
+  })
   const [errors, setErrors] = useState<Partial<Record<keyof MemberFormData, string>>>({})
   const [spinning, setSpinning] = useState(false)
 
   const nameRef  = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const phoneRef = useRef<HTMLInputElement>(null)
+
+  // Runs once after mount — safe to call Math.random() here (client only).
+  useEffect(() => {
+    setForm(EMPTY_FORM())
+  }, [])
 
   // Generate a fresh ID every time the modal opens
   useEffect(() => {
@@ -254,9 +267,11 @@ export function AddMemberModal({ open, onClose, onSubmit }: AddMemberModalProps)
 
           {/* Footer */}
           <div className="flex items-center justify-between gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800 mt-2">
-            <p className="text-[11px] text-zinc-400 font-mono bg-zinc-50 dark:bg-zinc-800 px-2 py-1 rounded-md border border-zinc-100 dark:border-zinc-700">
-              {form.salesId}
-            </p>
+            {form.salesId && (
+              <p className="text-[11px] text-zinc-400 font-mono bg-zinc-50 dark:bg-zinc-800 px-2 py-1 rounded-md border border-zinc-100 dark:border-zinc-700">
+                {form.salesId}
+              </p>
+            )}
             <div className="flex items-center gap-2.5">
               <Button type="button" variant="outline" onClick={onClose} className="border-zinc-200 text-zinc-600 hover:text-zinc-900 h-9">
                 Cancel

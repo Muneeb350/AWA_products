@@ -11,6 +11,10 @@ import {
   ChevronRight,
   Calendar,
   Hash,
+  X,
+  Mail,
+  Phone,
+  ChevronDown,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +33,14 @@ import { cn } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface Salesman {
+  id: string
+  name: string
+  email: string
+  phone: string
+  employeeCode: string
+}
+
 interface OrderItem {
   name: string
   qty: number
@@ -44,15 +56,36 @@ interface Order {
   items: OrderItem[]
   shipping: { line1: string; line2: string; country: string }
   payment: { method: string; last4?: string }
+  salesmanId: string
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG = {
-  pending:   { label: "Pending",   variant: "pending" as const,     dot: "bg-amber-400"  },
-  shipped:   { label: "Shipped",   variant: "warning" as const,     dot: "bg-blue-400"   },
-  delivered: { label: "Delivered", variant: "success" as const,     dot: "bg-green-400"  },
-  cancelled: { label: "Cancelled", variant: "destructive" as const, dot: "bg-red-400"    },
+  pending:   {
+    label: "Pending",
+    dot:   "bg-amber-400",
+    badge: "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800/60",
+    variant: "pending" as const,
+  },
+  shipped:   {
+    label: "Shipped",
+    dot:   "bg-blue-400",
+    badge: "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-800/60",
+    variant: "warning" as const,
+  },
+  delivered: {
+    label: "Delivered",
+    dot:   "bg-emerald-400",
+    badge: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60",
+    variant: "success" as const,
+  },
+  cancelled: {
+    label: "Cancelled",
+    dot:   "bg-red-400",
+    badge: "bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800/60",
+    variant: "destructive" as const,
+  },
 } as const
 
 const AVATAR_PALETTE = [
@@ -66,109 +99,108 @@ const AVATAR_PALETTE = [
   "bg-purple-100 text-purple-600",
 ]
 
+// ─── Salesman Data ────────────────────────────────────────────────────────────
+
+const SALESMEN: Salesman[] = [
+  { id: "s1", name: "Sarah Johnson", email: "sarah@awaproducts.com",  phone: "+1 555 010 2030", employeeCode: "AWA-001" },
+  { id: "s2", name: "Marcus Rivera", email: "marcus@awaproducts.com", phone: "+1 555 020 3040", employeeCode: "AWA-002" },
+  { id: "s3", name: "Aisha Patel",   email: "aisha@awaproducts.com",  phone: "+1 555 030 4050", employeeCode: "AWA-003" },
+  { id: "s4", name: "Derek Osei",    email: "derek@awaproducts.com",  phone: "+1 555 040 5060", employeeCode: "AWA-004" },
+  { id: "s5", name: "Lena Müller",   email: "lena@awaproducts.com",   phone: "+1 555 050 6070", employeeCode: "AWA-005" },
+  { id: "s6", name: "Carlos Tran",   email: "carlos@awaproducts.com", phone: "+1 555 060 7080", employeeCode: "AWA-006" },
+]
+
+const SALESMAN_MAP = Object.fromEntries(SALESMEN.map(s => [s.id, s]))
+
+// ─── Seed Data ────────────────────────────────────────────────────────────────
+
 const ORDERS: Order[] = [
   {
-    id: "ORD-8821",
+    id: "ORD-8821", salesmanId: "s1",
     customer: { name: "Sarah Johnson",  email: "sarah.j@example.com"  },
-    date: "Apr 15, 2026",
-    amount: 448.00,
-    status: "delivered",
+    date: "Apr 15, 2026", amount: 448.00, status: "delivered",
     items: [
-      { name: "Premium Headphones",  qty: 1, price: 299 },
-      { name: "USB-C Hub 7-Port",    qty: 1, price: 79  },
-      { name: "Mouse Pad XL Pro",    qty: 2, price: 35  },
+      { name: "Premium Headphones", qty: 1, price: 299 },
+      { name: "USB-C Hub 7-Port",   qty: 1, price: 79  },
+      { name: "Mouse Pad XL Pro",   qty: 2, price: 35  },
     ],
-    shipping: { line1: "123 Oak Street",    line2: "New York, NY 10001",    country: "United States" },
+    shipping: { line1: "123 Oak Street",   line2: "New York, NY 10001",    country: "United States" },
     payment: { method: "Visa",        last4: "4242" },
   },
   {
-    id: "ORD-8820",
-    customer: { name: "James Carter",   email: "j.carter@example.com"   },
-    date: "Apr 14, 2026",
-    amount: 189.00,
-    status: "shipped",
+    id: "ORD-8820", salesmanId: "s2",
+    customer: { name: "James Carter",  email: "j.carter@example.com"   },
+    date: "Apr 14, 2026", amount: 189.00, status: "shipped",
     items: [
       { name: "Mechanical Keyboard", qty: 1, price: 189 },
     ],
-    shipping: { line1: "456 Maple Avenue",  line2: "Chicago, IL 60601",    country: "United States" },
-    payment: { method: "Mastercard",  last4: "8931" },
+    shipping: { line1: "456 Maple Avenue", line2: "Chicago, IL 60601",    country: "United States" },
+    payment: { method: "Mastercard", last4: "8931" },
   },
   {
-    id: "ORD-8819",
-    customer: { name: "Emily Watson",   email: "emily.w@example.com"    },
-    date: "Apr 14, 2026",
-    amount: 699.00,
-    status: "pending",
+    id: "ORD-8819", salesmanId: "s1",
+    customer: { name: "Emily Watson",  email: "emily.w@example.com"    },
+    date: "Apr 14, 2026", amount: 699.00, status: "pending",
     items: [
-      { name: '4K Monitor 27"',      qty: 1, price: 599 },
-      { name: "Laptop Stand Alloy",  qty: 1, price: 65  },
-      { name: "Mouse Pad XL Pro",    qty: 1, price: 35  },
+      { name: '4K Monitor 27"',     qty: 1, price: 599 },
+      { name: "Laptop Stand Alloy", qty: 1, price: 65  },
+      { name: "Mouse Pad XL Pro",   qty: 1, price: 35  },
     ],
-    shipping: { line1: "789 Pine Road",     line2: "Los Angeles, CA 90001", country: "United States" },
+    shipping: { line1: "789 Pine Road",    line2: "Los Angeles, CA 90001", country: "United States" },
     payment: { method: "PayPal" },
   },
   {
-    id: "ORD-8818",
-    customer: { name: "Michael Torres",  email: "m.torres@example.com"   },
-    date: "Apr 13, 2026",
-    amount: 307.00,
-    status: "delivered",
+    id: "ORD-8818", salesmanId: "s3",
+    customer: { name: "Michael Torres", email: "m.torres@example.com"  },
+    date: "Apr 13, 2026", amount: 307.00, status: "delivered",
     items: [
-      { name: "SSD 1TB NVMe",        qty: 2, price: 89  },
-      { name: "Webcam Pro 4K",       qty: 1, price: 129 },
+      { name: "SSD 1TB NVMe",  qty: 2, price: 89  },
+      { name: "Webcam Pro 4K", qty: 1, price: 129 },
     ],
-    shipping: { line1: "321 Cedar Lane",    line2: "Houston, TX 77001",    country: "United States" },
+    shipping: { line1: "321 Cedar Lane",   line2: "Houston, TX 77001",    country: "United States" },
     payment: { method: "Visa",        last4: "1234" },
   },
   {
-    id: "ORD-8817",
-    customer: { name: "Olivia Kim",     email: "o.kim@example.com"      },
-    date: "Apr 13, 2026",
-    amount: 149.00,
-    status: "cancelled",
+    id: "ORD-8817", salesmanId: "s4",
+    customer: { name: "Olivia Kim",    email: "o.kim@example.com"      },
+    date: "Apr 13, 2026", amount: 149.00, status: "cancelled",
     items: [
-      { name: "Wireless Keyboard",   qty: 1, price: 149 },
+      { name: "Wireless Keyboard", qty: 1, price: 149 },
     ],
-    shipping: { line1: "654 Birch Blvd",    line2: "Seattle, WA 98101",    country: "United States" },
+    shipping: { line1: "654 Birch Blvd",   line2: "Seattle, WA 98101",    country: "United States" },
     payment: { method: "Amex",        last4: "3782" },
   },
   {
-    id: "ORD-8816",
-    customer: { name: "Daniel Park",    email: "d.park@example.com"     },
-    date: "Apr 12, 2026",
-    amount: 269.00,
-    status: "shipped",
+    id: "ORD-8816", salesmanId: "s2",
+    customer: { name: "Daniel Park",   email: "d.park@example.com"     },
+    date: "Apr 12, 2026", amount: 269.00, status: "shipped",
     items: [
-      { name: "WiFi Router X500",    qty: 1, price: 199 },
-      { name: "Mouse Pad XL Pro",    qty: 2, price: 35  },
+      { name: "WiFi Router X500",  qty: 1, price: 199 },
+      { name: "Mouse Pad XL Pro",  qty: 2, price: 35  },
     ],
-    shipping: { line1: "987 Elm Street",    line2: "Miami, FL 33101",      country: "United States" },
+    shipping: { line1: "987 Elm Street",   line2: "Miami, FL 33101",      country: "United States" },
     payment: { method: "Visa",        last4: "5678" },
   },
   {
-    id: "ORD-8815",
-    customer: { name: "Aisha Rahman",   email: "a.rahman@example.com"   },
-    date: "Apr 12, 2026",
-    amount: 299.00,
-    status: "delivered",
+    id: "ORD-8815", salesmanId: "s3",
+    customer: { name: "Aisha Rahman",  email: "a.rahman@example.com"   },
+    date: "Apr 12, 2026", amount: 299.00, status: "delivered",
     items: [
-      { name: "Premium Headphones",  qty: 1, price: 299 },
+      { name: "Premium Headphones", qty: 1, price: 299 },
     ],
-    shipping: { line1: "147 Walnut Court",  line2: "Boston, MA 02101",     country: "United States" },
-    payment: { method: "Mastercard",  last4: "4567" },
+    shipping: { line1: "147 Walnut Court", line2: "Boston, MA 02101",     country: "United States" },
+    payment: { method: "Mastercard", last4: "4567" },
   },
   {
-    id: "ORD-8814",
-    customer: { name: "Lucas Silva",    email: "l.silva@example.com"    },
-    date: "Apr 11, 2026",
-    amount: 179.00,
-    status: "pending",
+    id: "ORD-8814", salesmanId: "s5",
+    customer: { name: "Lucas Silva",   email: "l.silva@example.com"    },
+    date: "Apr 11, 2026", amount: 179.00, status: "pending",
     items: [
-      { name: "USB-C Hub 7-Port",    qty: 1, price: 79  },
-      { name: "Laptop Stand Alloy",  qty: 1, price: 65  },
-      { name: "Mouse Pad XL Pro",    qty: 1, price: 35  },
+      { name: "USB-C Hub 7-Port",   qty: 1, price: 79 },
+      { name: "Laptop Stand Alloy", qty: 1, price: 65 },
+      { name: "Mouse Pad XL Pro",   qty: 1, price: 35 },
     ],
-    shipping: { line1: "258 Spruce Way",    line2: "Phoenix, AZ 85001",    country: "United States" },
+    shipping: { line1: "258 Spruce Way",   line2: "Phoenix, AZ 85001",    country: "United States" },
     payment: { method: "PayPal" },
   },
 ]
@@ -183,22 +215,92 @@ function itemsTotal(items: OrderItem[]) {
   return items.reduce((sum, i) => sum + i.qty * i.price, 0)
 }
 
-// ─── Order Detail Drawer Content ──────────────────────────────────────────────
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr)
+  const dd = String(d.getDate()).padStart(2, "0")
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  return `${dd}-${mm}-${d.getFullYear()}`
+}
+
+// ─── Salesman Modal ───────────────────────────────────────────────────────────
+
+function SalesmanModal({ salesman, onClose }: { salesman: Salesman; onClose: () => void }) {
+  const initials = salesman.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
+
+  return (
+    <div
+      aria-modal="true"
+      role="dialog"
+      aria-label="Salesman details"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl shadow-black/10 w-full max-w-sm overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40">
+          <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Salesman Details</p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-600 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Avatar + name + code */}
+        <div className="flex flex-col items-center px-5 pt-6 pb-4 gap-2">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-base font-bold text-emerald-600 dark:text-emerald-400">
+            {initials}
+          </div>
+          <p className="text-base font-semibold text-zinc-900 dark:text-zinc-100">{salesman.name}</p>
+          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+            {salesman.employeeCode}
+          </span>
+        </div>
+
+        {/* Contact rows */}
+        <div className="px-5 pb-5">
+          <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800 overflow-hidden">
+            <div className="flex items-center gap-3 px-4 py-3">
+              <Mail className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+              <div>
+                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Email</p>
+                <a href={`mailto:${salesman.email}`} className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 transition-colors">
+                  {salesman.email}
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-4 py-3">
+              <Phone className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+              <div>
+                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Phone</p>
+                <a href={`tel:${salesman.phone}`} className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-emerald-600 transition-colors">
+                  {salesman.phone}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Order Detail Sheet Content ───────────────────────────────────────────────
 
 function OrderDetails({ order }: { order: Order }) {
   const subtotal = itemsTotal(order.items)
   const shipping = subtotal >= 100 ? 0 : 9.99
-  const total = subtotal + shipping
-  const status = STATUS_CONFIG[order.status]
+  const total    = subtotal + shipping
+  const status   = STATUS_CONFIG[order.status]
 
   return (
     <div className="divide-y divide-zinc-100">
-      {/* ── Order meta ── */}
+      {/* Order meta */}
       <div className="px-6 py-5 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-sm font-semibold text-zinc-900">
-            #{order.id}
-          </span>
+          <span className="font-mono text-sm font-semibold text-zinc-900">#{order.id}</span>
           <Badge variant={status.variant}>{status.label}</Badge>
         </div>
         <div className="flex items-center gap-4 text-xs text-zinc-400">
@@ -213,34 +315,23 @@ function OrderDetails({ order }: { order: Order }) {
         </div>
       </div>
 
-      {/* ── Customer ── */}
+      {/* Customer */}
       <div className="px-6 py-5">
-        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">
-          Customer
-        </p>
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">Customer</p>
         <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              "w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
-              avatarStyle(order.customer.name)
-            )}
-          >
+          <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0", avatarStyle(order.customer.name))}>
             {order.customer.name[0]}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-zinc-900 truncate">
-              {order.customer.name}
-            </p>
+            <p className="text-sm font-semibold text-zinc-900 truncate">{order.customer.name}</p>
             <p className="text-xs text-zinc-400 truncate">{order.customer.email}</p>
           </div>
         </div>
       </div>
 
-      {/* ── Items ── */}
+      {/* Items */}
       <div className="px-6 py-5">
-        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">
-          Order Items
-        </p>
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">Order Items</p>
         <div className="space-y-2">
           {order.items.map((item, i) => (
             <div key={i} className="flex items-center justify-between gap-3">
@@ -279,11 +370,9 @@ function OrderDetails({ order }: { order: Order }) {
         </div>
       </div>
 
-      {/* ── Shipping ── */}
+      {/* Shipping */}
       <div className="px-6 py-5">
-        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">
-          Shipping Address
-        </p>
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">Shipping Address</p>
         <div className="flex items-start gap-2.5">
           <MapPin className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
           <div className="text-sm text-zinc-700 leading-relaxed">
@@ -294,11 +383,9 @@ function OrderDetails({ order }: { order: Order }) {
         </div>
       </div>
 
-      {/* ── Payment ── */}
+      {/* Payment */}
       <div className="px-6 py-5">
-        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">
-          Payment
-        </p>
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-3">Payment</p>
         <div className="flex items-center gap-2.5">
           <CreditCard className="w-4 h-4 text-zinc-400 shrink-0" />
           <p className="text-sm text-zinc-700">
@@ -313,12 +400,12 @@ function OrderDetails({ order }: { order: Order }) {
   )
 }
 
-// ─── Print Invoice (hidden, print-only) ───────────────────────────────────────
+// ─── Print Invoice ────────────────────────────────────────────────────────────
 
 function PrintInvoice({ order }: { order: Order }) {
   const subtotal = itemsTotal(order.items)
   const shipping = subtotal >= 100 ? 0 : 9.99
-  const total = subtotal + shipping
+  const total    = subtotal + shipping
 
   return (
     <div id="order-invoice">
@@ -348,10 +435,10 @@ function PrintInvoice({ order }: { order: Order }) {
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: "2px solid #e4e4e7" }}>
-            <th style={{ textAlign: "left", padding: "8px 0", color: "#71717a", fontWeight: 500 }}>Item</th>
+            <th style={{ textAlign: "left",   padding: "8px 0", color: "#71717a", fontWeight: 500 }}>Item</th>
             <th style={{ textAlign: "center", padding: "8px 0", color: "#71717a", fontWeight: 500 }}>Qty</th>
-            <th style={{ textAlign: "right", padding: "8px 0", color: "#71717a", fontWeight: 500 }}>Unit Price</th>
-            <th style={{ textAlign: "right", padding: "8px 0", color: "#71717a", fontWeight: 500 }}>Total</th>
+            <th style={{ textAlign: "right",  padding: "8px 0", color: "#71717a", fontWeight: 500 }}>Unit Price</th>
+            <th style={{ textAlign: "right",  padding: "8px 0", color: "#71717a", fontWeight: 500 }}>Total</th>
           </tr>
         </thead>
         <tbody>
@@ -382,29 +469,39 @@ function PrintInvoice({ order }: { order: Order }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function OrdersClient() {
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [search, setSearch] = useState("")
+  const [selectedOrder, setSelectedOrder]   = useState<Order | null>(null)
+  const [search, setSearch]                 = useState("")
+  const [salesmanFilter, setSalesmanFilter] = useState("all")
+  const [modalSalesman, setModalSalesman]   = useState<Salesman | null>(null)
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return ORDERS
-    const q = search.toLowerCase()
-    return ORDERS.filter(
-      o =>
+    const q = search.toLowerCase().trim()
+    return ORDERS.filter(o => {
+      const matchSearch =
+        !q ||
         o.id.toLowerCase().includes(q) ||
         o.customer.name.toLowerCase().includes(q) ||
         o.status.includes(q)
-    )
-  }, [search])
+      const matchSalesman = salesmanFilter === "all" || o.salesmanId === salesmanFilter
+      return matchSearch && matchSalesman
+    })
+  }, [search, salesmanFilter])
 
-  function handlePrint() {
-    window.print()
-  }
+  const selectedSalesmanName =
+    salesmanFilter === "all" ? null : SALESMAN_MAP[salesmanFilter]?.name ?? null
+
+  const selectCls = cn(
+    "h-9 appearance-none rounded-lg border border-zinc-200 dark:border-zinc-700",
+    "bg-white dark:bg-zinc-900 text-sm text-zinc-700 dark:text-zinc-300",
+    "pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-400 transition-colors"
+  )
 
   return (
     <>
       <div className="space-y-5">
+
         {/* Toolbar */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
             <Input
@@ -414,11 +511,29 @@ export function OrdersClient() {
               className="pl-9 h-9"
             />
           </div>
-          {search && (
+
+          {/* Salesman filter */}
+          <div className="relative">
+            <select
+              value={salesmanFilter}
+              onChange={e => setSalesmanFilter(e.target.value)}
+              className={selectCls}
+            >
+              <option value="all">All Salesmen</option>
+              {SALESMEN.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
+          </div>
+
+          {(search || salesmanFilter !== "all") && (
             <span className="text-xs text-zinc-400">
               {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+              {selectedSalesmanName ? ` for ${selectedSalesmanName}` : ""}
             </span>
           )}
+
           {/* Status legend */}
           <div className="ml-auto hidden sm:flex items-center gap-4">
             {Object.entries(STATUS_CONFIG).map(([, cfg]) => (
@@ -433,18 +548,15 @@ export function OrdersClient() {
         {/* Table */}
         <Card className="overflow-hidden">
           {filtered.length === 0 ? (
-            /* ── Empty state ── */
             <CardContent className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="w-14 h-14 bg-zinc-100 rounded-2xl flex items-center justify-center mb-4">
+              <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center mb-4">
                 <ShoppingCart className="w-7 h-7 text-zinc-400" />
               </div>
-              <h3 className="text-base font-semibold text-zinc-900 mb-1">
-                No orders yet
-              </h3>
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-1">No orders found</h3>
               <p className="text-sm text-zinc-400 max-w-xs leading-relaxed">
-                {search
-                  ? `No results for "${search}" — try a different search term`
-                  : "Orders from your customers will show up here once they start placing them."}
+                {search || salesmanFilter !== "all"
+                  ? "Try adjusting your search or salesman filter"
+                  : "Orders will appear here once customers start placing them."}
               </p>
             </CardContent>
           ) : (
@@ -452,8 +564,8 @@ export function OrdersClient() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="hover:bg-transparent border-zinc-100">
-                      <TableHead className="pl-5 text-xs font-semibold text-zinc-400 uppercase tracking-wide w-32">
+                    <TableRow className="hover:bg-transparent border-zinc-100 dark:border-zinc-800">
+                      <TableHead className="pl-5 text-xs font-semibold text-zinc-400 uppercase tracking-wide w-36">
                         Order ID
                       </TableHead>
                       <TableHead className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
@@ -468,6 +580,12 @@ export function OrdersClient() {
                       <TableHead className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
                         Status
                       </TableHead>
+                      <TableHead className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                        Salesman
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                        Code
+                      </TableHead>
                       <TableHead className="pr-5 w-8" />
                     </TableRow>
                   </TableHeader>
@@ -475,7 +593,8 @@ export function OrdersClient() {
                   <TableBody>
                     {filtered.map(order => {
                       const isSelected = selectedOrder?.id === order.id
-                      const status = STATUS_CONFIG[order.status]
+                      const status     = STATUS_CONFIG[order.status]
+                      const salesman   = SALESMAN_MAP[order.salesmanId]
 
                       return (
                         <TableRow
@@ -484,62 +603,73 @@ export function OrdersClient() {
                           className={cn(
                             "border-zinc-100 dark:border-zinc-800 cursor-pointer transition-colors",
                             isSelected
-                              ? "bg-green-50/60"
+                              ? "bg-emerald-50/60 dark:bg-emerald-950/20"
                               : "hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40"
                           )}
                         >
                           {/* Order ID */}
                           <TableCell className="pl-5 py-3.5">
-                            <span className="font-mono text-xs font-semibold text-zinc-500">
-                              #{order.id}
+                            <span className="font-mono text-sm font-bold text-zinc-800 dark:text-zinc-100">
+                              {order.id}
                             </span>
                           </TableCell>
 
                           {/* Customer */}
                           <TableCell className="py-3.5">
                             <div className="flex items-center gap-2.5">
-                              <div
-                                className={cn(
-                                  "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                                  avatarStyle(order.customer.name)
-                                )}
-                              >
+                              <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0", avatarStyle(order.customer.name))}>
                                 {order.customer.name[0]}
                               </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-zinc-900 truncate leading-tight">
-                                  {order.customer.name}
-                                </p>
-                                <p className="text-[11px] text-zinc-400 truncate hidden sm:block">
-                                  {order.customer.email}
-                                </p>
-                              </div>
+                              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate leading-tight">
+                                {order.customer.name}
+                              </p>
                             </div>
                           </TableCell>
 
-                          {/* Date */}
-                          <TableCell className="hidden sm:table-cell py-3.5 text-sm text-zinc-500">
-                            {order.date}
+                          {/* Date — DD-MM-YYYY */}
+                          <TableCell className="hidden sm:table-cell py-3.5 text-sm text-zinc-500 tabular-nums">
+                            {formatDate(order.date)}
                           </TableCell>
 
                           {/* Amount */}
-                          <TableCell className="py-3.5 font-semibold text-zinc-900 text-sm tabular-nums">
-                            ${order.amount.toFixed(2)}
-                          </TableCell>
-
-                          {/* Status */}
                           <TableCell className="py-3.5">
-                            <Badge variant={status.variant}>{status.label}</Badge>
+                            <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+                              ${order.amount.toFixed(2)}
+                            </span>
                           </TableCell>
 
-                          {/* Chevron */}
+                          {/* Status badge */}
+                          <TableCell className="py-3.5">
+                            <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold", status.badge)}>
+                              {status.label}
+                            </span>
+                          </TableCell>
+
+                          {/* Salesman Name */}
+                          <TableCell className="py-3.5">
+                            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                              {salesman?.name ?? "—"}
+                            </span>
+                          </TableCell>
+
+                          {/* Salesman Code — clickable, stops row propagation */}
+                          <TableCell className="py-3.5">
+                            {salesman ? (
+                              <button
+                                type="button"
+                                onClick={e => { e.stopPropagation(); setModalSalesman(salesman) }}
+                                className="inline-flex items-center rounded-md px-2 py-0.5 font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors"
+                              >
+                                {salesman.employeeCode}
+                              </button>
+                            ) : (
+                              <span className="text-xs text-zinc-400">—</span>
+                            )}
+                          </TableCell>
+
+                          {/* Row chevron */}
                           <TableCell className="pr-4 py-3.5 text-right">
-                            <ChevronRight
-                              className={cn(
-                                "w-4 h-4 transition-colors",
-                                isSelected ? "text-green-500" : "text-zinc-300"
-                              )}
-                            />
+                            <ChevronRight className={cn("w-4 h-4 transition-colors", isSelected ? "text-emerald-500" : "text-zinc-300")} />
                           </TableCell>
                         </TableRow>
                       )
@@ -557,11 +687,11 @@ export function OrdersClient() {
                 </p>
                 <div className="flex items-center gap-3 text-xs text-zinc-400">
                   {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
-                    const count = ORDERS.filter(o => o.status === key).length
+                    const count = filtered.filter(o => o.status === key).length
                     return count > 0 ? (
-                      <span key={key} className="flex items-center gap-1">
+                      <span key={key} className="flex items-center gap-1.5">
                         <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
-                        {count}
+                        {count} {cfg.label.toLowerCase()}
                       </span>
                     ) : null
                   })}
@@ -572,7 +702,7 @@ export function OrdersClient() {
         </Card>
       </div>
 
-      {/* ── Order Detail Sheet ── */}
+      {/* Order Detail Sheet */}
       <Sheet
         open={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
@@ -583,7 +713,7 @@ export function OrdersClient() {
           selectedOrder && (
             <div className="flex items-center gap-2.5">
               <Button
-                onClick={handlePrint}
+                onClick={() => window.print()}
                 variant="outline"
                 className="gap-2 border-zinc-200 text-zinc-600 hover:text-zinc-900 h-9 flex-1 sm:flex-none sheet-close-btn"
               >
@@ -603,8 +733,13 @@ export function OrdersClient() {
         {selectedOrder && <OrderDetails order={selectedOrder} />}
       </Sheet>
 
-      {/* ── Print-only invoice (hidden on screen) ── */}
+      {/* Print-only invoice */}
       {selectedOrder && <PrintInvoice order={selectedOrder} />}
+
+      {/* Salesman detail modal */}
+      {modalSalesman && (
+        <SalesmanModal salesman={modalSalesman} onClose={() => setModalSalesman(null)} />
+      )}
     </>
   )
 }

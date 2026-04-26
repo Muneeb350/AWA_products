@@ -1,30 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import { useTheme } from "next-themes"
+import { useState, useRef } from "react"
 import {
-  Palette, Bell, Shield, User,
-  Sun, Moon, Monitor, Eye, EyeOff,
-  CheckCircle2, Save,
+  Eye, EyeOff, CheckCircle2, Save,
+  Camera, Shield, Bell, User,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type Tab = "appearance" | "notifications" | "security"
-type Theme = "light" | "dark" | "system"
-
-// ─── Tab config ───────────────────────────────────────────────────────────────
-
-const TABS: Array<{ key: Tab; label: string; icon: React.ElementType }> = [
-  { key: "appearance",    label: "Appearance",    icon: Palette },
-  { key: "notifications", label: "Notifications", icon: Bell    },
-  { key: "security",      label: "Security",      icon: Shield  },
-]
-
-// ─── Toggle Switch ────────────────────────────────────────────────────────────
+// ─── Toggle ───────────────────────────────────────────────────────────────────
 
 function Toggle({
   checked,
@@ -43,8 +28,9 @@ function Toggle({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40 shrink-0",
-        checked ? "bg-green-500" : "bg-zinc-200"
+        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 shrink-0",
+        checked ? "bg-emerald-600" : "bg-zinc-200"
       )}
     >
       <span
@@ -57,294 +43,32 @@ function Toggle({
   )
 }
 
-// ─── Checkbox ────────────────────────────────────────────────────────────────
+// ─── Password Field ───────────────────────────────────────────────────────────
 
-function Checkbox({
-  checked,
-  onChange,
-  id,
+function PasswordField({
+  id, label, value, onChange, show, onToggle, error, placeholder,
 }: {
-  checked: boolean
-  onChange: (v: boolean) => void
   id: string
+  label: string
+  value: string
+  onChange: (v: string) => void
+  show: boolean
+  onToggle: () => void
+  error?: string
+  placeholder?: string
 }) {
   return (
-    <button
-      type="button"
-      role="checkbox"
-      id={id}
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        "w-4 h-4 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-all duration-150",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/40",
-        checked
-          ? "bg-green-500 border-green-500"
-          : "bg-white border-zinc-300 hover:border-zinc-400"
-      )}
-    >
-      {checked && (
-        <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 8" fill="none">
-          <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )}
-    </button>
-  )
-}
-
-// ─── Toast ────────────────────────────────────────────────────────────────────
-
-function SaveToast({ visible }: { visible: boolean }) {
-  return (
-    <div className={cn(
-      "fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2.5 bg-zinc-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-xl shadow-black/20 transition-all duration-300 z-50",
-      visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
-    )}>
-      <CheckCircle2 className="w-4 h-4 text-green-400" />
-      Settings saved successfully
-    </div>
-  )
-}
-
-// ─── Tab Panels ───────────────────────────────────────────────────────────────
-
-function AppearanceTab() {
-  const { theme, setTheme }         = useTheme()
-  const [compactMode, setCompact]   = useState(false)
-  const [animations, setAnimations] = useState(true)
-  const [toast, setToast]           = useState(false)
-
-  const THEME_OPTIONS: Array<{ key: Theme; label: string; icon: React.ElementType; desc: string }> = [
-    { key: "light",  label: "Light",  icon: Sun,     desc: "Clean white interface"      },
-    { key: "dark",   label: "Dark",   icon: Moon,    desc: "Easy on the eyes at night"  },
-    { key: "system", label: "System", icon: Monitor, desc: "Follows OS preference"      },
-  ]
-
-  const activeTheme = (theme ?? "system") as Theme
-
-  function save() {
-    setToast(true)
-    setTimeout(() => setToast(false), 2200)
-  }
-
-  return (
-    <>
-      <div className="space-y-6">
-        {/* Live theme switcher */}
-        <div>
-          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Color Theme</p>
-          <p className="text-xs text-zinc-400 mb-3">Choose how the dashboard looks to you</p>
-          <div className="grid grid-cols-3 gap-3">
-            {THEME_OPTIONS.map(({ key, label, icon: Icon, desc }) => {
-              const isActive = activeTheme === key
-              return (
-                <button
-                  key={key}
-                  onClick={() => setTheme(key)}
-                  className={cn(
-                    "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 text-center",
-                    isActive
-                      ? "border-green-500 bg-green-50/60 dark:bg-green-500/10 shadow-sm shadow-green-500/10"
-                      : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 hover:border-zinc-300 hover:bg-zinc-50 dark:hover:border-zinc-600"
-                  )}
-                >
-                  <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                    isActive ? "bg-green-500/15 text-green-600" : "bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
-                  )}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className={cn("text-xs font-semibold", isActive ? "text-green-700 dark:text-green-400" : "text-zinc-700 dark:text-zinc-300")}>{label}</p>
-                    <p className="text-[10px] text-zinc-400 mt-0.5 leading-tight">{desc}</p>
-                  </div>
-                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-green-500" />}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Live preview pill */}
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-700/60">
-          <div className="flex items-center gap-2">
-            {activeTheme === "dark"   && <Moon    className="w-4 h-4 text-zinc-400" />}
-            {activeTheme === "light"  && <Sun     className="w-4 h-4 text-amber-500" />}
-            {activeTheme === "system" && <Monitor className="w-4 h-4 text-blue-400" />}
-            <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Currently using <span className="font-semibold text-zinc-900 dark:text-zinc-100 capitalize">{activeTheme}</span> mode
-            </p>
-          </div>
-          <span className={cn(
-            "ml-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
-            activeTheme === "dark"
-              ? "border-zinc-600 bg-zinc-700 text-zinc-300"
-              : activeTheme === "light"
-              ? "border-amber-200 bg-amber-50 text-amber-700"
-              : "border-blue-200 bg-blue-50 text-blue-700"
-          )}>
-            <span className={cn(
-              "w-1.5 h-1.5 rounded-full",
-              activeTheme === "dark" ? "bg-zinc-400" : activeTheme === "light" ? "bg-amber-400" : "bg-blue-400"
-            )} />
-            Active
-          </span>
-        </div>
-
-        <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
-
-        {/* Extra toggles */}
-        <div className="space-y-4">
-          {[
-            { label: "Compact Mode",  desc: "Reduce spacing and padding throughout the UI", value: compactMode, set: setCompact  },
-            { label: "Animations",    desc: "Enable transitions and micro-interactions",      value: animations,  set: setAnimations },
-          ].map(({ label, desc, value, set }) => (
-            <div key={label} className="flex items-center justify-between gap-4 py-1">
-              <div>
-                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{label}</p>
-                <p className="text-xs text-zinc-400 mt-0.5">{desc}</p>
-              </div>
-              <Toggle checked={value} onChange={set} label={label} />
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-end pt-2">
-          <Button onClick={save} className="h-9 px-5 bg-green-500 hover:bg-green-600 text-white shadow-sm shadow-green-500/20 gap-2">
-            <Save className="w-3.5 h-3.5" />
-            Save Appearance
-          </Button>
-        </div>
-      </div>
-      <SaveToast visible={toast} />
-    </>
-  )
-}
-
-function NotificationsTab() {
-  const [prefs, setPrefs] = useState({
-    orderAlerts:    true,
-    stockAlerts:    true,
-    emailDigest:    false,
-    shipmentAlerts: true,
-    teamActivity:   false,
-    systemUpdates:  true,
-  })
-  const [toast, setToast] = useState(false)
-
-  function toggle(key: keyof typeof prefs) {
-    setPrefs(p => ({ ...p, [key]: !p[key] }))
-  }
-
-  function save() {
-    setToast(true)
-    setTimeout(() => setToast(false), 2200)
-  }
-
-  const ROWS: Array<{ key: keyof typeof prefs; label: string; desc: string; important?: boolean }> = [
-    { key: "orderAlerts",    label: "Order Alerts",    desc: "Get notified when a new order is placed",          important: true  },
-    { key: "stockAlerts",    label: "Stock Alerts",    desc: "Alerts when a product drops below reorder level",  important: true  },
-    { key: "shipmentAlerts", label: "Shipment Updates",desc: "Tracking updates when orders ship or are delivered"               },
-    { key: "emailDigest",    label: "Daily Email Digest", desc: "A morning summary of yesterday's activity"                     },
-    { key: "teamActivity",   label: "Team Activity",   desc: "Notifications when sales reps log activity"                       },
-    { key: "systemUpdates",  label: "System Updates",  desc: "Dashboard version releases and maintenance alerts"                },
-  ]
-
-  return (
-    <>
-      <div className="space-y-5">
-        <div>
-          <p className="text-sm font-semibold text-zinc-900 mb-0.5">Notification Preferences</p>
-          <p className="text-xs text-zinc-400">Choose which alerts you want to receive in the dashboard</p>
-        </div>
-
-        <div className="divide-y divide-zinc-100 dark:divide-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-800 overflow-hidden">
-          {ROWS.map(({ key, label, desc, important }) => (
-            <label
-              key={key}
-              htmlFor={`notif-${key}`}
-              className="flex items-center justify-between gap-4 px-4 py-3.5 bg-white dark:bg-zinc-900 hover:bg-zinc-50/60 dark:hover:bg-zinc-800/60 cursor-pointer transition-colors"
-            >
-              <div className="flex items-start gap-3 min-w-0">
-                <Checkbox checked={prefs[key]} onChange={() => toggle(key)} id={`notif-${key}`} />
-                <div>
-                  <p className={cn("text-sm font-medium leading-tight", prefs[key] ? "text-zinc-900" : "text-zinc-500")}>
-                    {label}
-                    {important && (
-                      <span className="ml-2 text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-1.5 py-0.5">
-                        Recommended
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-zinc-400 mt-0.5">{desc}</p>
-                </div>
-              </div>
-            </label>
-          ))}
-        </div>
-
-        <div className="flex justify-end">
-          <Button onClick={save} className="h-9 px-5 bg-green-500 hover:bg-green-600 text-white shadow-sm shadow-green-500/20 gap-2">
-            <Save className="w-3.5 h-3.5" />
-            Save Preferences
-          </Button>
-        </div>
-      </div>
-      <SaveToast visible={toast} />
-    </>
-  )
-}
-
-function SecurityTab() {
-  const [current,  setCurrent]  = useState("")
-  const [next,     setNext]     = useState("")
-  const [confirm,  setConfirm]  = useState("")
-  const [showCur,  setShowCur]  = useState(false)
-  const [showNew,  setShowNew]  = useState(false)
-  const [showCon,  setShowCon]  = useState(false)
-  const [errors,   setErrors]   = useState<Record<string, string>>({})
-  const [toast,    setToast]    = useState(false)
-  const [twoFA,    setTwoFA]    = useState(false)
-  const [sessions, setSessions] = useState(true)
-
-  function validate() {
-    const e: Record<string, string> = {}
-    if (!current)                         e.current  = "Current password is required"
-    if (!next)                            e.next     = "New password is required"
-    else if (next.length < 8)             e.next     = "Must be at least 8 characters"
-    if (!confirm)                         e.confirm  = "Please confirm your new password"
-    else if (confirm !== next)            e.confirm  = "Passwords do not match"
-    return e
-  }
-
-  function save(e: React.FormEvent) {
-    e.preventDefault()
-    const errs = validate()
-    if (Object.keys(errs).length) { setErrors(errs); return }
-    setErrors({})
-    setCurrent(""); setNext(""); setConfirm("")
-    setToast(true)
-    setTimeout(() => setToast(false), 2200)
-  }
-
-  const PasswordField = ({
-    label, value, onChange, show, onToggle, error, id, placeholder,
-  }: {
-    label: string; value: string; onChange: (v: string) => void
-    show: boolean; onToggle: () => void; error?: string
-    id: string; placeholder?: string
-  }) => (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-xs font-medium text-zinc-600">{label}</label>
+      <label htmlFor={id} className="text-xs font-medium text-zinc-500">{label}</label>
       <div className="relative">
         <Input
           id={id}
           type={show ? "text" : "password"}
           placeholder={placeholder ?? "••••••••"}
           value={value}
-          onChange={e => { onChange(e.target.value); setErrors(p => ({ ...p, [id]: "" })) }}
+          onChange={e => onChange(e.target.value)}
           className={cn(
-            "h-9 pr-9",
+            "h-9 pr-9 border-zinc-200",
             error && "border-red-400 focus-visible:ring-red-400/25 focus-visible:border-red-400"
           )}
         />
@@ -359,91 +83,337 @@ function SecurityTab() {
       {error && <p className="text-[11px] text-red-500">{error}</p>}
     </div>
   )
+}
 
-  const strength = !next ? 0 : next.length < 6 ? 1 : next.length < 10 || !/[^a-zA-Z0-9]/.test(next) ? 2 : 3
-  const strengthLabel = ["", "Weak", "Fair", "Strong"]
-  const strengthColor = ["", "bg-red-400", "bg-amber-400", "bg-green-500"]
+// ─── Save Toast ───────────────────────────────────────────────────────────────
+
+function SaveToast({ visible, message = "Settings saved" }: { visible: boolean; message?: string }) {
+  return (
+    <div className={cn(
+      "fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-50",
+      "bg-zinc-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-xl shadow-black/20",
+      "transition-all duration-300",
+      visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+    )}>
+      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+      {message}
+    </div>
+  )
+}
+
+// ─── Section Card ─────────────────────────────────────────────────────────────
+
+function Section({
+  icon: Icon,
+  title,
+  description,
+  children,
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-zinc-100 overflow-hidden">
+      {/* Section header */}
+      <div className="px-6 py-4 border-b border-zinc-100 flex items-center gap-3">
+        <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+          <Icon className="w-3.5 h-3.5 text-emerald-600" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-zinc-900 leading-tight">{title}</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5">{description}</p>
+        </div>
+      </div>
+      <div className="px-6 py-5">{children}</div>
+    </div>
+  )
+}
+
+// ─── Divider ──────────────────────────────────────────────────────────────────
+
+function Divider() {
+  return <div className="h-px bg-zinc-100 my-5" />
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export function SettingsClient() {
+  // Profile
+  const [name, setName]         = useState("Admin User")
+  const [email, setEmail]       = useState("admin@awaproducts.com")
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [profileToast, setProfileToast] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  // Password
+  const [current,  setCurrent]  = useState("")
+  const [next,     setNext]     = useState("")
+  const [confirm,  setConfirm]  = useState("")
+  const [showCur,  setShowCur]  = useState(false)
+  const [showNew,  setShowNew]  = useState(false)
+  const [showCon,  setShowCon]  = useState(false)
+  const [pwErrors, setPwErrors] = useState<Record<string, string>>({})
+  const [pwToast,  setPwToast]  = useState(false)
+
+  // 2FA
+  const [twoFA, setTwoFA] = useState(false)
+
+  // Notifications
+  const [emailNotifs,   setEmailNotifs]   = useState(true)
+  const [systemAlerts,  setSystemAlerts]  = useState(true)
+  const [notifToast,    setNotifToast]    = useState(false)
+
+  // ── Helpers ──
+
+  const initials = name.trim()
+    ? name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
+    : "AU"
+
+  function showToast(set: (v: boolean) => void) {
+    set(true)
+    setTimeout(() => set(false), 2200)
+  }
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) setAvatarUrl(URL.createObjectURL(file))
+  }
+
+  function saveProfile(e: React.FormEvent) {
+    e.preventDefault()
+    showToast(setProfileToast)
+  }
+
+  const pwStrength = !next ? 0 : next.length < 6 ? 1 : next.length < 10 || !/[^a-zA-Z0-9]/.test(next) ? 2 : 3
+  const pwStrengthLabel = ["", "Weak", "Fair", "Strong"]
+  const pwStrengthColor = ["", "bg-red-400", "bg-amber-400", "bg-emerald-500"]
+
+  function savePassword(e: React.FormEvent) {
+    e.preventDefault()
+    const errs: Record<string, string> = {}
+    if (!current)                errs.current = "Current password is required"
+    if (!next)                   errs.next    = "New password is required"
+    else if (next.length < 8)    errs.next    = "Must be at least 8 characters"
+    if (!confirm)                errs.confirm = "Please confirm your new password"
+    else if (confirm !== next)   errs.confirm = "Passwords do not match"
+    if (Object.keys(errs).length) { setPwErrors(errs); return }
+    setPwErrors({})
+    setCurrent(""); setNext(""); setConfirm("")
+    showToast(setPwToast)
+  }
+
+  function clearPwError(field: string) {
+    setPwErrors(p => ({ ...p, [field]: "" }))
+  }
+
+  function saveNotifications() {
+    showToast(setNotifToast)
+  }
 
   return (
-    <>
-      <div className="space-y-6">
-        {/* Change password */}
-        <div>
-          <p className="text-sm font-semibold text-zinc-900 mb-0.5">Change Password</p>
-          <p className="text-xs text-zinc-400 mb-4">Use a strong password you don't use elsewhere</p>
-          <form onSubmit={save} className="space-y-3">
-            <PasswordField
-              id="current" label="Current Password"
-              value={current} onChange={setCurrent}
-              show={showCur} onToggle={() => setShowCur(v => !v)}
-              error={errors.current}
-            />
-            <PasswordField
-              id="next" label="New Password" placeholder="Min. 8 characters"
-              value={next} onChange={setNext}
-              show={showNew} onToggle={() => setShowNew(v => !v)}
-              error={errors.next}
-            />
+    <div className="max-w-lg space-y-5">
 
-            {/* Password strength meter */}
-            {next.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="flex gap-1">
-                  {[1, 2, 3].map(i => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "h-1 flex-1 rounded-full transition-all duration-300",
-                        i <= strength ? strengthColor[strength] : "bg-zinc-100"
-                      )}
-                    />
-                  ))}
-                </div>
-                <p className={cn(
-                  "text-[11px] font-medium",
-                  strength === 1 ? "text-red-500" : strength === 2 ? "text-amber-600" : "text-green-600"
-                )}>
-                  {strengthLabel[strength]} password
-                </p>
+      {/* ── Profile ────────────────────────────────────────────────────────── */}
+      <Section icon={User} title="Profile" description="Update your display name, email, and photo">
+        <form onSubmit={saveProfile} className="space-y-5">
+
+          {/* Avatar */}
+          <div className="flex items-center gap-4">
+            <div className="relative shrink-0 group">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-600 flex items-center justify-center overflow-hidden shadow-sm shadow-emerald-600/20">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white text-xl font-bold">{initials}</span>
+                )}
               </div>
-            )}
-
-            <PasswordField
-              id="confirm" label="Confirm New Password"
-              value={confirm} onChange={setConfirm}
-              show={showCon} onToggle={() => setShowCon(v => !v)}
-              error={errors.confirm}
-            />
-
-            <div className="flex justify-end pt-1">
-              <Button type="submit" className="h-9 px-5 bg-green-500 hover:bg-green-600 text-white shadow-sm shadow-green-500/20 gap-2">
-                <Save className="w-3.5 h-3.5" />
-                Update Password
-              </Button>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                title="Change photo"
+              >
+                <Camera className="w-4 h-4 text-white" />
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoChange}
+              />
             </div>
-          </form>
+            <div>
+              <p className="text-sm font-medium text-zinc-800">{name || "Admin User"}</p>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="text-xs text-emerald-600 hover:text-emerald-700 font-medium mt-0.5 transition-colors"
+              >
+                Change photo
+              </button>
+              <p className="text-[11px] text-zinc-400 mt-0.5">JPG, PNG or WebP · max 2 MB</p>
+            </div>
+          </div>
+
+          <Divider />
+
+          {/* Name + Email */}
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <label htmlFor="display-name" className="text-xs font-medium text-zinc-500">
+                Display Name
+              </label>
+              <Input
+                id="display-name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Your full name"
+                className="h-9 border-zinc-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="text-xs font-medium text-zinc-500">
+                Email Address
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@company.com"
+                className="h-9 border-zinc-200"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-1">
+            <Button
+              type="submit"
+              className="h-9 px-5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20 gap-2 text-sm"
+            >
+              <Save className="w-3.5 h-3.5" />
+              Save Profile
+            </Button>
+          </div>
+        </form>
+      </Section>
+
+      {/* ── Account Security ───────────────────────────────────────────────── */}
+      <Section icon={Shield} title="Account Security" description="Change your password and manage two-factor authentication">
+
+        {/* Change Password */}
+        <form onSubmit={savePassword} className="space-y-3">
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Change Password</p>
+
+          <PasswordField
+            id="current"
+            label="Current Password"
+            value={current}
+            onChange={v => { setCurrent(v); clearPwError("current") }}
+            show={showCur}
+            onToggle={() => setShowCur(v => !v)}
+            error={pwErrors.current}
+          />
+          <PasswordField
+            id="next"
+            label="New Password"
+            placeholder="Min. 8 characters"
+            value={next}
+            onChange={v => { setNext(v); clearPwError("next") }}
+            show={showNew}
+            onToggle={() => setShowNew(v => !v)}
+            error={pwErrors.next}
+          />
+
+          {/* Strength meter */}
+          {next.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="flex gap-1.5">
+                {[1, 2, 3].map(i => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "h-1 flex-1 rounded-full transition-all duration-300",
+                      i <= pwStrength ? pwStrengthColor[pwStrength] : "bg-zinc-100"
+                    )}
+                  />
+                ))}
+              </div>
+              <p className={cn(
+                "text-[11px] font-medium",
+                pwStrength === 1 ? "text-red-500" :
+                pwStrength === 2 ? "text-amber-600" : "text-emerald-600"
+              )}>
+                {pwStrengthLabel[pwStrength]} password
+              </p>
+            </div>
+          )}
+
+          <PasswordField
+            id="confirm"
+            label="Confirm New Password"
+            value={confirm}
+            onChange={v => { setConfirm(v); clearPwError("confirm") }}
+            show={showCon}
+            onToggle={() => setShowCon(v => !v)}
+            error={pwErrors.confirm}
+          />
+
+          <div className="flex justify-end pt-1">
+            <Button
+              type="submit"
+              className="h-9 px-5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20 gap-2 text-sm"
+            >
+              <Save className="w-3.5 h-3.5" />
+              Update Password
+            </Button>
+          </div>
+        </form>
+
+        <Divider />
+
+        {/* 2FA */}
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-zinc-800">Two-Factor Authentication</p>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              Require a verification code on every login
+            </p>
+          </div>
+          <Toggle checked={twoFA} onChange={setTwoFA} label="Two-Factor Authentication" />
         </div>
 
-        <div className="h-px bg-zinc-100" />
+        {twoFA && (
+          <div className="mt-3 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-100">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <p className="text-xs text-emerald-700 font-medium">
+              2FA is enabled — your account is protected
+            </p>
+          </div>
+        )}
+      </Section>
 
-        {/* Security toggles */}
+      {/* ── Notifications ──────────────────────────────────────────────────── */}
+      <Section icon={Bell} title="Notifications" description="Choose which alerts you want to receive">
         <div className="space-y-4">
-          <p className="text-sm font-semibold text-zinc-900">Security Options</p>
           {[
             {
-              label: "Two-Factor Authentication",
-              desc:  "Require a code from your authenticator app on login",
-              value: twoFA,
-              set:   setTwoFA,
+              label: "Email Notifications",
+              desc:  "Receive a daily summary of orders and activity via email",
+              value: emailNotifs,
+              set:   setEmailNotifs,
             },
             {
-              label: "Active Session Alerts",
-              desc:  "Get notified when a new device signs into your account",
-              value: sessions,
-              set:   setSessions,
+              label: "System Alerts",
+              desc:  "Get notified about dashboard updates and maintenance",
+              value: systemAlerts,
+              set:   setSystemAlerts,
             },
           ].map(({ label, desc, value, set }) => (
-            <div key={label} className="flex items-center justify-between gap-4 py-1">
+            <div key={label} className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-zinc-800">{label}</p>
                 <p className="text-xs text-zinc-400 mt-0.5">{desc}</p>
@@ -452,83 +422,23 @@ function SecurityTab() {
             </div>
           ))}
         </div>
-      </div>
-      <SaveToast visible={toast} />
-    </>
-  )
-}
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
-export function SettingsClient() {
-  const [activeTab, setActiveTab] = useState<Tab>("appearance")
-
-  return (
-    <div className="max-w-2xl space-y-5">
-      {/* Profile card — always visible */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-5">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-md shadow-green-500/20 shrink-0">
-            <span className="text-white text-lg font-bold">A</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-zinc-900">Admin User</p>
-            <p className="text-xs text-zinc-400">admin@awaproducts.com</p>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs font-medium text-green-600">Active</span>
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-zinc-500">Display Name</label>
-            <Input defaultValue="Admin User" className="h-9" />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-zinc-500">Email Address</label>
-            <Input defaultValue="admin@awaproducts.com" className="h-9" />
-          </div>
-        </div>
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-          <button className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-800 transition-colors">
-            <User className="w-3.5 h-3.5" />
-            Change Photo
-          </button>
-          <Button className="h-8 px-4 text-xs bg-green-500 hover:bg-green-600 text-white shadow-sm shadow-green-500/20">
-            Save Profile
+        <div className="flex justify-end pt-5">
+          <Button
+            type="button"
+            onClick={saveNotifications}
+            className="h-9 px-5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20 gap-2 text-sm"
+          >
+            <Save className="w-3.5 h-3.5" />
+            Save Preferences
           </Button>
         </div>
-      </div>
+      </Section>
 
-      {/* Tabs card */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 overflow-hidden">
-        {/* Tab bar */}
-        <div className="flex border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40">
-          {TABS.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setActiveTab(key)}
-              className={cn(
-                "flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-all duration-150 border-b-2 -mb-px",
-                activeTab === key
-                  ? "border-green-500 text-green-600 bg-white"
-                  : "border-transparent text-zinc-500 hover:text-zinc-700 hover:bg-white/60"
-              )}
-            >
-              <Icon className={cn("w-3.5 h-3.5", activeTab === key ? "text-green-500" : "text-zinc-400")} />
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab content */}
-        <div className="p-6">
-          {activeTab === "appearance"    && <AppearanceTab />}
-          {activeTab === "notifications" && <NotificationsTab />}
-          {activeTab === "security"      && <SecurityTab />}
-        </div>
-      </div>
+      {/* Toasts */}
+      <SaveToast visible={profileToast} message="Profile saved successfully" />
+      <SaveToast visible={pwToast}      message="Password updated successfully" />
+      <SaveToast visible={notifToast}   message="Notification preferences saved" />
     </div>
   )
 }

@@ -115,7 +115,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-8 border-t border-border pt-6 text-center text-l text-text-muted">
           &copy; {new Date().getFullYear()} AWA Products. All rights reserved.{" "}
-          | Designed by Usman &amp; Muneeb
+          | Designed by Global Tech Stack
         </div>
       </div>
     </footer>
