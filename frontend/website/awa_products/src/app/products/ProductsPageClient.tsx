@@ -167,14 +167,12 @@ import type { CategoryCount } from "@/components/products/CategoryFilter";
 
 const CATEGORY_ORDER = [
   "All Products",
-  "House Hold",
-  "Laundry",
-  "Office",
-  "Industrial",
-  "Restaurant",
-  "Mechanic Special",
-  "Packaging",
-  "Clinical",
+  "Laundry Care",
+  "Cleaning Chemicals",
+  "Disposable Food Service",
+  "Janitorial Cleaning Supplies",
+  "Paper Products",
+  "Trash Liners",
 ];
 
 function MobileCategoryPills({

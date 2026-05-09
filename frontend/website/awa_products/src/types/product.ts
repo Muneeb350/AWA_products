@@ -18,14 +18,12 @@ export interface Product {
 
 /** All valid sub-categories used across the catalog */
 export type SubCategory =
-  | "House Hold"
-  | "Laundry"
-  | "Office"
-  | "Industrial"
-  | "Restaurant"
-  | "Mechanic Special"
-  | "Packaging"
-  | "Clinical";
+  | "Laundry Care"
+  | "Cleaning Chemicals"
+  | "Disposable Food Service"
+  | "Janitorial Cleaning Supplies"
+  | "Paper Products"
+  | "Trash Liners";
 
 /** Human-readable sub-category slug for URLs (lowercase, hyphenated) */
 export function subCategorySlug(sub: SubCategory): string {
@@ -35,26 +33,22 @@ export function subCategorySlug(sub: SubCategory): string {
 /** Reverse: slug → SubCategory */
 export function slugToSubCategory(slug: string): SubCategory | null {
   const map: Record<string, SubCategory> = {
-    "house-hold": "House Hold",
-    laundry: "Laundry",
-    office: "Office",
-    industrial: "Industrial",
-    restaurant: "Restaurant",
-    "mechanic-special": "Mechanic Special",
-    packaging: "Packaging",
-    clinical: "Clinical",
+    "laundry-care": "Laundry Care",
+    "cleaning-chemicals": "Cleaning Chemicals",
+    "disposable-food-service": "Disposable Food Service",
+    "janitorial-cleaning-supplies": "Janitorial Cleaning Supplies",
+    "paper-products": "Paper Products",
+    "trash-liners": "Trash Liners",
   };
   return map[slug] ?? null;
 }
 
 /** Ordered list of all sub-categories (for consistent rendering) */
 export const ALL_SUB_CATEGORIES: SubCategory[] = [
-  "House Hold",
-  "Laundry",
-  "Office",
-  "Industrial",
-  "Restaurant",
-  "Mechanic Special",
-  "Packaging",
-  "Clinical",
+  "Laundry Care",
+  "Cleaning Chemicals",
+  "Disposable Food Service",
+  "Janitorial Cleaning Supplies",
+  "Paper Products",
+  "Trash Liners",
 ];

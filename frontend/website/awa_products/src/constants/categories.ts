@@ -20,14 +20,12 @@ export interface SubCategoryDef {
  * Edit this array to change the display order everywhere.
  */
 export const SUB_CATEGORIES: SubCategoryDef[] = [
-  { label: "House Hold", slug: "house-hold" },
-  { label: "Laundry", slug: "laundry" },
-  { label: "Office", slug: "office" },
-  { label: "Industrial", slug: "industrial" },
-  { label: "Restaurant", slug: "restaurant" },
-  { label: "Mechanic Special", slug: "mechanic-special" },
-  { label: "Packaging", slug: "packaging" },
-  { label: "Clinical", slug: "clinical" },
+  { label: "Laundry Care", slug: "laundry-care" },
+  { label: "Cleaning Chemicals", slug: "cleaning-chemicals" },
+  { label: "Disposable Food Service", slug: "disposable-food-service" },
+  { label: "Janitorial Cleaning Supplies", slug: "janitorial-cleaning-supplies" },
+  { label: "Paper Products", slug: "paper-products" },
+  { label: "Trash Liners", slug: "trash-liners" },
 ];
 
 /** Extract just the labels (for type compatibility) */

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -84,21 +85,43 @@ export default function AboutPage() {
    Stats Bar
    ───────────────────────────────────────────── */
 
+const STATS = [
+  { end: 70, suffix: "+", label: "Products Manufactured" },
+  { end: 100, suffix: "%", label: "Quality Guaranteed" },
+  { end: 24, suffix: "/7", label: "Customer Support" },
+  { end: 7, suffix: "", label: "Industry Sectors" },
+];
+
 function StatsBar() {
-  const stats = [
-    { value: "50+", label: "Products Manufactured" },
-    { value: "500+", label: "Distribution Partners" },
-    { value: "8", label: "Industry Sectors" },
-    { value: "100%", label: "Quality Tested" },
-  ];
+  const ref = useRef<HTMLElement>(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className="border-b border-border bg-surface">
+    <section ref={ref} className="border-b border-border bg-surface">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-          {stats.map(({ value, label }) => (
+          {STATS.map(({ end, suffix, label }) => (
             <div key={label} className="text-center">
-              <div className="text-3xl font-extrabold text-brand-600 sm:text-4xl">{value}</div>
+              <div className="text-3xl font-extrabold text-brand-600 sm:text-4xl">
+                <CountUp end={end} started={started} />
+                {suffix}
+              </div>
               <div className="mt-1 text-sm font-medium text-text-muted">{label}</div>
             </div>
           ))}
@@ -106,6 +129,34 @@ function StatsBar() {
       </div>
     </section>
   );
+}
+
+function CountUp({ end, started, duration = 1800 }: { end: number; started: boolean; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const frameRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!started) return;
+    const startTime = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutQuart — fast start, smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(eased * end));
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(tick);
+      } else {
+        setCount(end);
+      }
+    }
+
+    frameRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [started, end, duration]);
+
+  return <>{count}</>;
 }
 
 /* ─────────────────────────────────────────────
@@ -122,11 +173,9 @@ function OurStory() {
           </h2>
           <div className="mt-4 space-y-4 text-base leading-relaxed text-text-muted">
             <p>
-              AWA Products was established with a single mandate: to build
-              manufacturing infrastructure capable of producing world-class
-              household and cleaning products at industrial scale. What began
-              as a focused formulation operation has evolved into a full-scale
-              manufacturing company with a growing brand portfolio.
+              AWA Products was founded with a clear mission: to build a high-capacity manufacturing infrastructure for world-class household
+              and cleaning solutions. What started as a specialized formulation lab has now evolved into a premier manufacturing powerhouse 
+              with a diverse portfolio of over 70+ products.
             </p>
             <p>
               Our flagship brand, <strong className="text-text">Euzzy</strong>, was born inside our
@@ -136,10 +185,9 @@ function OurStory() {
               is manufactured, tested, and dispatched directly by AWA Products.
             </p>
             <p>
-              Today, our manufacturing capabilities serve over 500 distribution
-              partners and continue to expand as we incubate new brands for
-              new markets. The next generation of household and cleaning
-              innovation starts here.
+              Today, we empower hundreds of distribution partners and continue to lead through innovation, 
+              incubating the next generation of household brands for global markets. The next generation 
+              of household and cleaning.
             </p>
           </div>
         </div>
@@ -341,28 +389,28 @@ function WhyChooseUs() {
 function IndustryFocus() {
   const sectors = [
     {
-      icon: Building2,
-      label: "Residential",
-      description:
-        "Everyday cleaning essentials manufactured for homes — glass cleaners, floor wash, laundry detergents, and handwash.",
-    },
-    {
-      icon: Factory,
-      label: "Industrial",
-      description:
-        "Heavy-duty degreasers, warehouse floor cleaners, and bulk sanitisers formulated for factories and workshops.",
-    },
-    {
-      icon: Stethoscope,
-      label: "Clinical",
-      description:
-        "Hospital-grade disinfectants and surface sanitisers manufactured to meet the standards of clinics and healthcare facilities.",
-    },
-    {
       icon: UtensilsCrossed,
-      label: "Restaurant",
+      label: "Hospitality & Food Service",
       description:
-        "Commercial dishwash gels, kitchen degreasers, and food-safe surface cleaners engineered for hospitality businesses.",
+        "High-quality disposables — to-go boxes, cutlery, and cups — alongside commercial dishwash gels and food-safe surface cleaners engineered for restaurants and catering operations.",
+    },
+    {
+      icon: Sparkles,
+      label: "Commercial Laundry & Retail",
+      description:
+        "An extensive range of premium laundry detergents, fabric softeners, and fragrance beads formulated for retail shelves and high-volume institutional laundry operations.",
+    },
+    {
+      icon: Building2,
+      label: "Janitorial & Facility Management",
+      description:
+        "Professional-grade cleaning tools, diverse trash liner specifications, and broad-spectrum disinfectants manufactured to meet the demands of large commercial and institutional facilities.",
+    },
+    {
+      icon: FlaskConical,
+      label: "Industrial & Automotive",
+      description:
+        "High-performance degreasers and specialised car wash solutions formulated for heavy-duty application in workshops, service bays, and manufacturing environments.",
     },
   ];
 
@@ -373,8 +421,8 @@ function IndustryFocus() {
           Industries We Manufacture For
         </h2>
         <p className="mt-3 text-base text-text-muted">
-          Our product lines are engineered for diverse environments — from
-          kitchen sinks to hospital wards.
+          Our product lines are purpose-built for the sectors that demand
+          consistent performance, scalable supply, and rigorous quality standards.
         </p>
       </div>
 

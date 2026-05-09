@@ -103,7 +103,7 @@ export function filtersToSearchParams(filters: ProductFilters): URLSearchParams 
 
 /**
  * Category count helper (for sidebar badges)
- * Returns counts for all 8 sub-categories, even if count is 0.
+ * Returns counts for all 6 sub-categories, even if count is 0.
  */
 export function getCategoryCounts(products: Product[]): { name: string; count: number }[] {
   // Count products by subCategory
@@ -112,16 +112,14 @@ export function getCategoryCounts(products: Product[]): { name: string; count: n
     counts[p.subCategory] = (counts[p.subCategory] || 0) + 1;
   });
 
-  // Return all 8 categories in the correct order, even if count is 0
+  // Return all 6 categories in the correct order, even if count is 0
   const categoryOrder = [
-    "House Hold",
-    "Laundry",
-    "Office",
-    "Industrial",
-    "Restaurant",
-    "Mechanic Special",
-    "Packaging",
-    "Clinical",
+    "Laundry Care",
+    "Cleaning Chemicals",
+    "Disposable Food Service",
+    "Janitorial Cleaning Supplies",
+    "Paper Products",
+    "Trash Liners",
   ];
 
   return categoryOrder.map((name) => ({

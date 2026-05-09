@@ -18,16 +18,19 @@ interface BackendProduct {
 
 /** Map from backend category label to the closest frontend SubCategory */
 const CATEGORY_TO_SUB: Record<string, SubCategory> = {
-  "Glass Care": "House Hold",
-  "Floor Care": "House Hold",
-  "Bathroom Care": "House Hold",
-  "Disinfectants": "Clinical",
-  "Kitchen & Industrial": "Industrial",
-  "Laundry Care": "Laundry",
-  "Office": "Office",
-  "Restaurant": "Restaurant",
-  "Packaging": "Packaging",
-  "Mechanic Special": "Mechanic Special",
+  "Glass Care": "Cleaning Chemicals",
+  "Floor Care": "Janitorial Cleaning Supplies",
+  "Bathroom Care": "Cleaning Chemicals",
+  "Disinfectants": "Cleaning Chemicals",
+  "Kitchen & Industrial": "Cleaning Chemicals",
+  "Laundry Care": "Laundry Care",
+  "Office": "Janitorial Cleaning Supplies",
+  "Restaurant": "Cleaning Chemicals",
+  "Packaging": "Trash Liners",
+  "Mechanic Special": "Cleaning Chemicals",
+  "Paper Products": "Paper Products",
+  "Disposable Food Service": "Disposable Food Service",
+  "Trash Liners": "Trash Liners",
 };
 
 function mapProduct(p: BackendProduct): Product {
@@ -36,7 +39,7 @@ function mapProduct(p: BackendProduct): Product {
     name: p.name,
     description: p.description,
     category: p.category,
-    subCategory: CATEGORY_TO_SUB[p.category] ?? "House Hold",
+    subCategory: CATEGORY_TO_SUB[p.category] ?? "Cleaning Chemicals",
     image: p.image_url ?? "/placeholder.png",
     inStock: true,
   };
